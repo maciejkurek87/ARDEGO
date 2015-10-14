@@ -1,0 +1,2 @@
+#!/usr/bin/bash
+cd /tmp/ ;rm -Rf dlib-18.3; cp -Rf ~/MLO/libs/dlib-18.3/ .; cd dlib-18.3/python_examples; ./compile_dlib_python_module.bat; cd build; make -j4 all; cd /tmp/; cp /tmp/dlib-18.3/python_examples/build/rvm_binding.so ~/MLO/libs/dlib-18.3/

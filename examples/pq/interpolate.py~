@@ -1,0 +1,208 @@
+import math
+import operator
+import csv
+
+from deap import base
+from deap import creator
+from deap import tools
+
+from numpy import *
+from copy import deepcopy 
+from numpy.random import uniform, seed,rand
+
+from sklearn.gaussian_process import GaussianProcess
+from sklearn import svm
+from sklearn import preprocessing
+
+
+import traceback
+
+from matplotlib import pyplot
+from matplotlib import cm
+from scipy.interpolate import griddata
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.backends.backend_pdf import PdfPages
+
+import os
+import traceback
+import sys
+
+import subprocess
+import threading, os
+from time import gmtime, strftime
+from copy import deepcopy    
+from matplotlib.ticker import MaxNLocator
+    
+enableTracebacks = True
+from numpy import * 
+
+if __name__ == '__main__':
+        module_path = os.path.dirname(__file__)
+        if module_path:
+            module_path = module_path + "/"
+        spamReader = csv.reader(open(module_path + 'time_mod.csv', 'rb'), delimiter=',', quotechar='"')
+
+        x = []
+        y = []
+        cost_data = {}
+        for row in spamReader:
+            row_0 = int(row[0])
+            row_1 = int(row[1])
+            row_2 = int(row[2])
+            row_3 = float(row[3])
+            
+            try:
+                try:
+                    cost_data[row_0][row_1][row_2]= row_3
+                except:
+                    cost_data[row_0][row_1] = {row_2:row_3}
+            except:
+                cost_data[row_0] = {row_1:{row_2:row_3}}
+        spamReader = csv.reader(open(module_path + 'throughput_mod.csv', 'rb'), delimiter=',', quotechar='"')
+        allData = {}
+        for row in spamReader:
+            row_0 = int(row[0])
+            row_1 = int(row[1])
+            row_2 = int(row[2])
+            row_3 = int(row[3])
+            row_4 = float(row[4])
+            '''
+            data = [cores[row_0][row_1],row_3,row_4,{}]
+            '''
+            
+            try:
+                try:
+                    allData[row_0][row_1][row_2] = [row_3, row_4]
+                except:
+                    allData[row_0][row_1] = {row_2:[row_3, row_4]}
+            except:
+                allData[row_0] = {row_1:{row_2:[row_3, row_4]}}
+
+        for i in range(6,54):
+            if i%2==0:
+                for j in range(1,5):
+                        for k in range(80,121):
+                            if k%5==0:
+                                row_3 = 0.5*(cost_data[i-1][k][j]+cost_data[i+1][k][j])
+                                try:
+                                    try:
+                                        cost_data[i][k][j]= row_3
+                                    except:
+                                        cost_data[i][k] = {j:row_3}
+                                except:
+                                    cost_data[i] = {k:{j:row_3}}
+                                
+                                
+                                if allData[i-1][k][j][0]==0 and allData[i+1][k][j][0]==0:
+                                    row_3 = 0
+                                elif allData[i-1][k][j][0]==1 and allData[i+1][k][j][0]==0:
+                                    row_3 = 1
+                                elif allData[i-1][k][j][0]==0 and allData[i+1][k][j][0]==1:
+                                    row_3 = 0
+                                elif allData[i-1][k][j][0]==1 and allData[i+1][k][j][0]==1:
+                                    row_3 = 1
+                                if i==6 and j==1 and k==80:
+                                    print row_3
+                                row_4 = 0.5 * (allData[i-1][k][j][1] + allData[i+1][k][j][1])
+                                try:
+                                    try:
+                                        allData[i][k][j]= [row_3, row_4]
+                                    except:
+                                        allData[i][k] = {j:[row_3, row_4]}
+                                except:
+                                    allData[i] = {k:{j:[row_3, row_4]}}
+
+        for j in range(1,5):
+            for k in range(80,121):
+                if k%5==0:
+                    row_3 = 0.5*(cost_data[5][k][j]+cost_data[5][k][j])
+                    try:
+                        try:
+                            cost_data[4][k][j]= row_3
+                        except:
+                            cost_data[4][k] = {j:row_3}
+                    except:
+                        cost_data[4] = {k:{j:row_3}}
+
+                    row_3 = allData[5][k][j][0]
+                    row_4 = 0.5 * (allData[5][k][j][1] + allData[5][k][j][1])
+                    try:
+                        try:
+                            allData[4][k][j]= [row_3, row_4]
+                        except:
+                            allData[4][k] = {j:[row_3, row_4]}
+                    except:
+                        allData[4] = {k:{j:[row_3, row_4]}}
+        print cost_data[4]
+        print allData[4]
+        print '------------------------------------'
+        for k in range(80,116):
+            if k%5==0:
+                for j in range(1,5):
+                        for i in range(4,54):
+                                row_3_1 = 0.8*cost_data[i][k][j]+0.2*cost_data[i][k+5][j]
+                                row_3_2 = 0.6*cost_data[i][k][j]+0.4*cost_data[i][k+5][j]
+                                row_3_3 = 0.4*cost_data[i][k][j]+0.6*cost_data[i][k+5][j]
+                                row_3_4 = 0.2*cost_data[i][k][j]+0.8*cost_data[i][k+5][j]
+                                
+                                try:
+                                        cost_data[i][k+1][j]= row_3_1
+                                        cost_data[i][k+2][j]= row_3_2
+                                        cost_data[i][k+3][j]= row_3_3
+                                        cost_data[i][k+4][j]= row_3_4
+                                        
+                                except:
+                                        cost_data[i][k+1] = {j:row_3_1}
+                                        cost_data[i][k+2] = {j:row_3_2}
+                                        cost_data[i][k+3] = {j:row_3_3}
+                                        cost_data[i][k+4] = {j:row_3_4}
+                                
+                                row_3 = int((not allData[i][k][j][0]) or (allData[i][k+5][j][0]))
+                                if allData[i][k][j][0]==0 and allData[i][k+5][j][0]==0:
+                                    row_3 = 0
+                                elif allData[i][k][j][0]==1 and allData[i][k+5][j][0]==0:
+                                    row_3 = 1
+                                elif allData[i][k][j][0]==0 and allData[i][k+5][j][0]==1:
+                                    row_3 = 0
+                                elif allData[i][k][j][0]==1 and allData[i][k+5][j][0]==1:
+                                    row_3 = 1
+
+                                row_4_1 = 0.8 * allData[i][k][j][1] + 0.2* allData[i][k+5][j][1]
+                                row_4_2 = 0.6 * allData[i][k][j][1] + 0.4* allData[i][k+5][j][1]
+                                row_4_3 = 0.4 * allData[i][k][j][1] + 0.6* allData[i][k+5][j][1]
+                                row_4_4 = 0.2 * allData[i][k][j][1] + 0.8* allData[i][k+5][j][1]
+                                try:
+                                        allData[i][k+1][j]= [row_3, row_4_1]
+                                        allData[i][k+2][j]= [row_3, row_4_2]
+                                        allData[i][k+3][j]= [row_3, row_4_3]
+                                        allData[i][k+4][j]= [row_3, row_4_4]
+                                except:
+                                        allData[i][k+1] = {j:[row_3, row_4_1]}
+                                        allData[i][k+2] = {j:[row_3, row_4_2]}
+                                        allData[i][k+3] = {j:[row_3, row_4_3]}
+                                        allData[i][k+4] = {j:[row_3, row_4_4]}
+        filename = 'throughput_inter_cor.csv'
+        filename1 = 'time_inter_cor.csv'
+        f = file(filename,'wb')
+        f1 = file(filename1,'wb')
+        ratio = {4:2.661*5, 5:1.865*5, 6:1.401*5, 7: 1.189*5, 8:1.086*5, 9:1.039*5, 10:1.014*5, 11:1.006*5, 12:1.003*5, 13:1.001*5, 14:1.001*5, 15:1.0*5}
+        Np = 727902.0
+        Nc = 20.0
+        Loutput = 4.0
+        upper = Np * (Nc + Loutput)
+        for i in range(4,54):
+            for j in range(80,121):
+                for k in range(1,5):
+                    throughput = 0.0
+                    if allData[i][j][k][0]==0:
+                        time = 0.0
+                        if i in ratio:
+                                time = float(upper)/float(j*100000*k) + Np*Nc*0.0000000577386*ratio[i]
+                        else:
+                                time = float(upper)/float(j*100000*k) + Np*Nc*0.0000000577386*5.0
+                        throughput = Np/time
+                    f1.write(str(i)+ "," + str(j) + "," + str(k) + "," + str(cost_data[i][j][k]) + '\n')
+                    f.write(str(i)+ "," + str(j) + "," + str(k) + "," + str(allData[i][j][k][0]) + "," + str(throughput/1000)+'\n')
+        f.close()
+        f1.close()
+ 

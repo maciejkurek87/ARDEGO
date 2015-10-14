@@ -1,0 +1,392 @@
+import math
+import operator
+import csv
+
+from deap import base
+from deap import creator
+from deap import tools
+
+from numpy import *
+from copy import deepcopy 
+from numpy.random import uniform, seed,rand
+
+from sklearn.gaussian_process import GaussianProcess
+from sklearn import svm
+from sklearn import preprocessing
+
+
+import traceback
+
+from matplotlib import pyplot
+from matplotlib import cm
+from scipy.interpolate import griddata
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.backends.backend_pdf import PdfPages
+
+import os
+import traceback
+import sys
+
+import subprocess
+import threading, os
+from time import gmtime, strftime
+from copy import deepcopy    
+from matplotlib.ticker import MaxNLocator
+    
+enableTracebacks = True
+from numpy import * 
+initMin = -1
+initMax = 1
+
+#aecc or execution time -- when error correction applied
+#### [ 15.   6.]   75.3885409418 0.1  13.0, 15.0, 6.0
+#### [ 20.  11.]   11.1996923818 0.05 
+#### [ 19.  22.]   1.44387061283 0.01 12.   19.   22.0
+#### [ 20.  32.]   0.469583069715 0.001
+
+#### without error correction
+#### [ 14.  11.   4.]   259.663179761 all
+#### [ 13.  15.   7.]   46.8546137378 0.001
+
+cost_maxVal = 15000.0
+cost_minVal = 0.0
+    
+doCores = True
+doMw = True
+doDf = True
+designSpace = []
+maxError = 0.05
+errorCorrection=True
+return_execution_time = True
+
+if doCores:
+    designSpace.append({"min":1.0,"max":4.0,"step":1.0,"type":"discrete","smin":-2.0,"smax":2.0, "set":"h"})
+## always do mw
+designSpace.append({"min":4.0,"max":53.0,"step":1.0,"type":"discrete","smin":-5.0,"smax":5.0, "set":"h"})
+
+if doDf:
+    designSpace.append( {"min":80.0,"max":120.0,"step":1.0,"type":"discrete","smin":-5.0,"smax":5.0, "set":"s"})
+              
+              
+## if  [ 14.  11.   4.]   0.000275081632653
+
+error_labels = {0:'Valid',1:'Overmap',3:'Inaccuracy'}
+#error_labels = {0:'Valid',3:'Inaccuracy'}
+    
+def get_x_axis_name():
+    if doCores:
+        return "Cores"
+    else:
+        return "$m_w$"
+        
+def get_y_axis_name():
+    if doDf:
+        return "$d_f$"
+    else:
+        return "$m_w$"
+
+def name():
+    return "anson_" + str(maxError) + "_doCores" + str(doCores) + "_doDf" + str(doDf) + "_errorCorrection" + str(errorCorrection) 
+    
+if doCores:
+    always_valid = [1.,10.,120.]
+else:
+    always_valid = [10.,120.]
+
+    
+if return_execution_time: ## Throughput case
+    maxvalue = 0.0
+    minVal = 0.0
+    maxVal = 200000.0
+    worst_value = 0.0
+    if doCores:
+        optVal = 159.24
+    else:
+        optVal = 128.62
+    def termCond(best):
+        global optVal
+        print str(best) + " " + str(optVal)
+        return best >= optVal
+    rotate = True
+    def get_z_axis_name():
+        return "Throughput ($\phi_{int}$)"
+    
+else: ## Energy case
+    maxvalue = 100.0
+    minVal = 0.0
+    maxVal = 100.0
+    worst_value = 100.0
+    rotate = False
+    optVal = {0.1:0.209,0.01:10.7,0.05:1.35,0.001:32.93 }[maxError]
+    
+    def termCond(best):
+        global optVal
+        print str(best) + " " + str(optVal)
+        return best < optVal
+
+    def get_z_axis_name():
+        return "$\mathrm{W}$"
+        
+def alwaysCorrect():
+    if doCores:
+        return array([1.0,53.0,32.0])
+    else :
+        return array([53.0,32.0]) 
+    
+def fitnessFunc(particle, state):
+    #print particle
+    allData = getAllData()
+    # Dimensions dynamically rescalled
+    ############Dimensions
+    if doCores:
+        cores = int(particle[0])
+        mw = int(particle[1])
+    else:
+        cores = 1.0
+        mw = int(particle[0])
+                
+    if doDf:
+        df = int(particle[-1])
+        '''
+        if not doCores:
+            cores = allData[11][mw][df][0]
+        '''    
+    code = allData[mw][df][cores][0]
+        #accuracy = array([allData[11][mw][i+1][1] for i in xrange(32)])[::-1]
+
+
+    '''        
+        if(errorCorrection):
+            ###error correction
+            #for dff,acc in enumerate(accuracy):
+            #    if ((32-dff) > df) and  (acc > error):
+            #        error = acc 
+                    
+            for mww in range(mw,54):
+                accuracy = array([allData[11][mww][i+1][1] for i in xrange(32)])[::-1]
+                for dff,acc in enumerate(accuracy):
+                    if ((32-dff) >= df) and  (acc > error):
+                        error = acc 
+            #print "mww ",mww," dff ",(32-dff)," acc ",acc," df ",df," mw ",mw," ",error
+            #print " df ",df," mw ",mw," ",error
+      
+    else:
+        accuracy = array([allData[11][mw][i+1][1] for i in xrange(32)])[::-1]
+        error = accuracy[0]
+        df = 0
+        for dff,acc in enumerate(accuracy):
+            if acc > maxError:
+                break
+            error = acc
+            df = 32 - dff  
+    '''    
+    #######################
+    if return_execution_time:
+        #cores = 1.0
+        throughput =  array([allData[mw][df][cores][1]])
+        
+        cost, isValid, state = getCost( df,float(mw),float(cores), state) ## we need to cast to float
+        #print allData[mw][df][cores], code, isValid    
+        ### overmapping error
+        
+        if code == 1 or isValid == 1:
+            return ((array([maxvalue]), array([1]),array([1]), cost) , state)
+
+        '''
+        if error > maxError:
+            return ((executionTime, array([3]),array([0]), cost) , state)##!!!! zmien na 0.0 
+        ### accuracy error
+        '''
+        ### ok values execution time
+        return ((throughput, array([0]),array([0]), cost), state)
+    '''
+    else:
+        #cores = 1.0
+        try:
+            power =  array([power_data[11][mw][cores][df]])
+            execution_time = allData[11][mw][df][2]
+            #power = (execution_time * power) / float(cores)
+        except Exception,e:
+            print str(e)
+            power = maxvalue
+            
+        cost, isValid, state = getCost(df, float(mw),float(cores), state) ## we need to cast to float
+            
+        ### overmapping error
+        if allData[11][mw][df][0] < cores or isValid == 1:
+            return ((array([maxvalue]), array([1]),array([1]), cost) , state)
+            
+        if error > maxError:
+            return ((power, array([3]),array([0]), cost) , state)##!!!! zmien na 0.0 
+        ### accuracy error
+        
+        ### ok values execution time
+        return ((power, array([0]),array([0]), cost), state)
+    '''
+
+global allData, costModel, costModelInputScaler, costModelOutputScaler, power_data, cost_data
+allData=None
+costModel=None
+costModelInputScaler=None
+costModelOutputScaler=None
+def getAllData():
+    global allData, costModel, costModelInputScaler, costModelOutputScaler, power_data, cost_data
+    if not allData:
+        module_path = os.path.dirname(__file__)
+        if module_path:
+            module_path = module_path + "/"
+        
+        ## COST MODEL
+        spamReader = csv.reader(open(module_path + 'time_inter_cor.csv', 'rb'), delimiter=',', quotechar='"')
+
+        x = []
+        y = []
+        cost_data = {}
+        for row in spamReader:
+            row_0 = int(row[0])
+            row_1 = int(row[1])
+            row_2 = int(row[2])
+            row_3 = float(row[3])
+            
+            try:
+                try:
+                    cost_data[row_0][row_1][row_2]= row_3
+                except:
+                    cost_data[row_0][row_1] = {row_2:row_3}
+            except:
+                cost_data[row_0] = {row_1:{row_2:row_3}}
+        #print cost_data
+        '''
+            x.append([float(row[1]),float(row[2])])
+            y.append([float(row[3]) + random.random()])
+        x = array(x)
+        y = array(y)
+        
+        input_scaler = preprocessing.StandardScaler().fit(x)
+        scaled_training_set = input_scaler.transform(x)
+
+                # Scale training data
+        output_scaler = preprocessing.StandardScaler(with_std=False).fit(y)
+        adjusted_training_fitness = output_scaler.transform(y)
+        
+        regr = GaussianProcess(corr='squared_exponential', theta0=1e-1,
+                         thetaL=1e-5, thetaU=3,
+                         random_start=400)
+        regr.fit(scaled_training_set, adjusted_training_fitness)
+        costModel = regr
+        costModelInputScaler = input_scaler
+        costModelOutputScaler = output_scaler
+        '''
+        ## cores, accuracy, exeuction time
+        '''
+        spamReader = csv.reader(open(module_path + 'AnsonCores.csv', 'rb'), delimiter=',', quotechar='"')
+        cores = {11:{}}
+        for row in spamReader:
+            cores[11][int(row[1])] = int(row[0])
+
+        maxcores = cores
+        '''
+        spamReader = csv.reader(open(module_path + 'throughput_inter_cor.csv', 'rb'), delimiter=',', quotechar='"')
+
+        allData = {}
+        for row in spamReader:
+            row_0 = int(row[0])
+            row_1 = int(row[1])
+            row_2 = int(row[2])
+            row_3 = int(row[3])
+            row_4 = float(row[4])
+            '''
+            data = [cores[row_0][row_1],row_3,row_4,{}]
+            '''
+            
+            try:
+                try:
+                    allData[row_0][row_1][row_2] = [row_3, row_4]
+                except:
+                    allData[row_0][row_1] = {row_2:[row_3, row_4]}
+            except:
+                allData[row_0] = {row_1:{row_2:[row_3, row_4]}}
+        '''
+        power_data = {}
+        spamReader = csv.reader(open(module_path + 'AnsonModPower.csv', 'rb'), delimiter=';', quotechar='"')
+        for row in spamReader:
+            row_0 = int(row[0]) ##
+            row_1 = int(row[1])
+            row_2 = int(row[2]) 
+            row_3 = int(row[3]) 
+            row_4 = float(row[4]) ## for given cores
+            try:
+                try:
+                    try:
+                        power_data[row_0][row_1][row_2][row_3] = row_4
+                    except:
+                        power_data[row_0][row_1][row_2]= {row_3:row_4}
+                except:
+                    power_data[row_0][row_1] = {row_2:{row_3:row_4}}
+            except:
+                power_data[row_0] = {row_1:{row_2:{row_3:row_4}}}
+                                
+        #spamReader.close()
+    #
+    '''
+    #print allData[4]
+    return allData
+#print allData
+#print cores
+
+##add state saving, we use p and thread id 
+def getCost(df, wF, cores, bit_stream_repo):
+    global costModel, costModelInputScaler, costModelOutputScaler, cost_data
+    bit_stream_repo_copy = deepcopy(bit_stream_repo) 
+    if bit_stream_repo is None:
+        bit_stream_repo_copy = {}
+    isValid = 0
+    if bit_stream_repo_copy.has_key((wF,cores)): ## bit_stream evalauted
+        return array([df*(0.5 + random.random())]), isValid, bit_stream_repo_copy
+    else:
+        bit_stream_repo_copy[(wF,cores)] = True
+        
+        
+        try:
+	    #print wF
+            cost = array([cost_data[int(wF)][int(df)][cores]+ df*(0.8 + random.random()/5.0)])
+        except:
+            cost = array([cost_maxVal])
+            isValid = 1
+        return cost , isValid, bit_stream_repo_copy  ##software cost, very small fraction and linear
+                
+if __name__ == '__main__':
+
+    import itertools 
+    maxEI = 0.0
+    maxEIcord = None
+    space_def = []
+    counter = 0
+    alldata = getAllData()
+    #xx = (2.0, 2.0, 4.0, 1.0, 1.0, 2.0, 2.0)
+    #print fitnessFunc(xx,None)[0][0][0]
+    '''
+    '''
+    for d in designSpace:
+        space_def.append(arange(d["min"],d["max"]+1.0,d["step"]))
+    print space_def
+    results = []
+    for z in itertools.product(*space_def):
+        #print str(z)
+        counter = counter + 1
+        EI = fitnessFunc(z,{})[0][0]
+        #print "--" + str(EI)
+        code = fitnessFunc(z,{})[0][1]
+        if (counter % 10000 == 0) :
+            print str(counter) + " " +  str(maxEIcord) + " " +  str(maxEI)
+        
+        if (maxEI < EI) and (code==0): ## no need for None checking
+            maxEI = EI
+            maxEIcord = z
+    ### 
+    print "DONE!"
+    print maxEIcord
+    print maxEI
+    '''
+    '''
+    

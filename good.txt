@@ -1,0 +1,514 @@
+rm -rf /homes/mk306/.maxdebug/cache
+Building maxdebug test program.........done.
+/homes/mk306/.maxdebug/cache/CpuStream_9b630a0cdfa673973c484dcf4b514f49_v2013.2.2 1 1 0 0 "" "" "" 1 "GRAPH" 1 0 0 "/dev/maxeler0" ""
+MaxDebug version 2013.2.2
+
+========================
+Kernel : CpuStreamKernel
+========================
+
+Kernel summary
+--------------
+Name              : CpuStreamKernel
+Fill level        : 148 / 148
+Flush level       : 148 / 148
+Flushing          : False
+Output Done       : 1
+Ran for           : 25000216 / 25000216 cycles
+Derived status    : Finished
+
+
+Stream summary
+--------------
+Name       Id    Type     #Outstanding Reads         Derived Status
+----       --    ----     ------------------         --------------
+ miu_s2     0    input            0                 not reading / no data available
+ miu_mean   1    input            0                 not reading / no data available
+ seeda_0    2    input            0                 not reading / data available
+ seedb_0    3    input            0                 not reading / data available
+ seeda_1    4    input            0                 not reading / no data available
+ seedb_1    5    input            0                 not reading / no data available
+ EI_0       0    output                             ready
+ EI_1       1    output                             ready
+
+
+Stream details
+----------------------------------------
+Input Stream name   : miu_s2
+Stream id           : 0
+Count               : 0     [ ][ ][ ]
+Almost_empty        : 1
+Empty               : 1
+Read                : 0
+Request             : 0
+Done                : 0
+Derived Status      : not reading / no data available
+----------------------------------------
+Input Stream name   : miu_mean
+Stream id           : 1
+Count               : 0     [ ][ ][ ]
+Almost_empty        : 1
+Empty               : 1
+Read                : 0
+Request             : 0
+Done                : 0
+Derived Status      : not reading / no data available
+----------------------------------------
+Input Stream name   : seeda_0
+Stream id           : 2
+Count               : 0     [ ][ ][ ]
+Almost_empty        : 1
+Empty               : 0
+Read                : 0
+Request             : 0
+Done                : 0
+Derived Status      : not reading / data available
+----------------------------------------
+Input Stream name   : seedb_0
+Stream id           : 3
+Count               : 0     [ ][ ][ ]
+Almost_empty        : 1
+Empty               : 0
+Read                : 0
+Request             : 0
+Done                : 0
+Derived Status      : not reading / data available
+----------------------------------------
+Input Stream name   : seeda_1
+Stream id           : 4
+Count               : 0     [ ][ ][ ]
+Almost_empty        : 1
+Empty               : 1
+Read                : 0
+Request             : 0
+Done                : 0
+Derived Status      : not reading / no data available
+----------------------------------------
+Input Stream name   : seedb_1
+Stream id           : 5
+Count               : 0     [ ][ ][ ]
+Almost_empty        : 1
+Empty               : 1
+Read                : 0
+Request             : 0
+Done                : 0
+Derived Status      : not reading / no data available
+----------------------------------------
+Output Stream name  : EI_0
+Stream id           : 0
+Output valid        : 0
+Output stall        : 0
+Derived Status      : ready
+----------------------------------------
+Output Stream name  : EI_1
+Stream id           : 1
+Output valid        : 0
+Output stall        : 0
+Derived Status      : ready
+
+Scalar parameter values
+-----------------------
+        ctld_empty              =     51
+        ctld_almost_empty       =     63
+        ctld_done               =      0
+        ctld_read               =      0
+        ctld_request            =      0
+        flush_start             =      0
+        full_level              =    148
+        flush_start_level       =      4
+        done_out                =      1
+        flushing                =      0
+        fill_level              =    148
+        flush_level             =    148
+        ctld_read_pipe_dbg      = 0x000000
+        out_stall               =      0
+        out_valid               =      0
+        stall_vector            =      0
+        run_cycle_count         = 25000216
+        current_run_cycle_count = 25000216
+
+Register dump:
+ClockReset_STREAM.stream_clkprim_rst                              @ 0x00000000 : [0] 0x00
+ClockReset_STREAM.stream_clkprim_locked                           @ 0x00000001 : [0] 0x01
+ClockReset_STREAM.stream_clkprim_locked_counter                   @ 0x00000002 : [0] 0x00000004
+SignalForwardingAdapter.SFA_FORWARD_EN                            @ 0x00000006 : [0] 0x00000006
+CpuStreamKernel.dbg_stall_vector                                  @ 0x0000000A : [0] 0x00
+CpuStreamKernel.max_n_sim                                         @ 0x0000000B : [0]      500000
+CpuStreamKernel.io_EI_0_force_disabled                            @ 0x0000000F : [0]           0
+CpuStreamKernel.maxmin                                            @ 0x00000010 : [0]           1
+CpuStreamKernel.y_best                                            @ 0x00000011 : [0]  2.3063e+00
+CpuStreamKernel.io_seeda_0_force_disabled                         @ 0x00000015 : [0]           0
+CpuStreamKernel.io_seedb_0_force_disabled                         @ 0x00000016 : [0]           0
+CpuStreamKernel.io_miu_mean_force_disabled                        @ 0x00000017 : [0]           0
+CpuStreamKernel.io_miu_s2_force_disabled                          @ 0x00000018 : [0]           0
+CpuStreamKernel.io_seeda_1_force_disabled                         @ 0x00000019 : [0]           0
+CpuStreamKernel.io_seedb_1_force_disabled                         @ 0x0000001A : [0]           0
+CpuStreamKernel.io_EI_1_force_disabled                            @ 0x0000001B : [0]           0
+CpuStreamKernel.run_cycle_count                                   @ 0x0000001C : [0]    25000216
+CpuStreamKernel.current_run_cycle_count                           @ 0x00000022 : [0]    25000216
+CpuStreamKernel.dbg_ctld_empty                                    @ 0x00000028 : [0] 0x33
+CpuStreamKernel.dbg_ctld_almost_empty                             @ 0x00000029 : [0] 0x3F
+CpuStreamKernel.dbg_ctld_done                                     @ 0x0000002A : [0] 0x00
+CpuStreamKernel.dbg_ctld_read                                     @ 0x0000002B : [0] 0x00
+CpuStreamKernel.dbg_ctld_request                                  @ 0x0000002C : [0] 0x00
+CpuStreamKernel.dbg_flush_start                                   @ 0x0000002D : [0] 0x00
+CpuStreamKernel.dbg_full_level                                    @ 0x0000002E : [0] 0x94
+CpuStreamKernel.dbg_flush_start_level                             @ 0x0000002F : [0] 0x04
+CpuStreamKernel.dbg_done_out                                      @ 0x00000030 : [0] 0x01
+CpuStreamKernel.dbg_flushing                                      @ 0x00000031 : [0] 0x00
+CpuStreamKernel.dbg_fill_level                                    @ 0x00000032 : [0] 0x94
+CpuStreamKernel.dbg_flush_level                                   @ 0x00000033 : [0] 0x94
+CpuStreamKernel.dbg_ctld_read_pipe_dbg                            @ 0x00000034 : [0] 0x000000
+CpuStreamKernel.dbg_out_valid                                     @ 0x00000037 : [0] 0x00
+CpuStreamKernel.dbg_out_stall                                     @ 0x00000038 : [0] 0x00
+STREAMSTATUS_miu_mean_miu_mean.StreamStatus_OUT_working_cycles    @ 0x00000039 : [0] 0x000000000003
+STREAMSTATUS_miu_mean_miu_mean.StreamStatus_OUT_waiting_cycles    @ 0x0000003F : [0] 0x000000006A11
+STREAMSTATUS_miu_mean_miu_mean.StreamStatus_OUT_active_cycles     @ 0x00000045 : [0] 0x000000006A19
+STREAMSTATUS_miu_mean_miu_mean.StreamStatus_OUT_flags             @ 0x0000004B : [0] 0x20
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_miu_s2_miu_s2.StreamStatus_OUT_working_cycles        @ 0x0000004C : [0] 0x000000000003
+STREAMSTATUS_miu_s2_miu_s2.StreamStatus_OUT_waiting_cycles        @ 0x00000052 : [0] 0x000000007100
+STREAMSTATUS_miu_s2_miu_s2.StreamStatus_OUT_active_cycles         @ 0x00000058 : [0] 0x000000007108
+STREAMSTATUS_miu_s2_miu_s2.StreamStatus_OUT_flags                 @ 0x0000005E : [0] 0x20
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_seeda_0_seeda_0.StreamStatus_OUT_working_cycles      @ 0x0000005F : [0] 0x00000000006C
+STREAMSTATUS_seeda_0_seeda_0.StreamStatus_OUT_waiting_cycles      @ 0x00000065 : [0] 0x000000011051
+STREAMSTATUS_seeda_0_seeda_0.StreamStatus_OUT_active_cycles       @ 0x0000006B : [0] 0x000000011126
+STREAMSTATUS_seeda_0_seeda_0.StreamStatus_OUT_flags               @ 0x00000071 : [0] 0x20
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_seeda_1_seeda_1.StreamStatus_OUT_working_cycles      @ 0x00000072 : [0] 0x00000000006C
+STREAMSTATUS_seeda_1_seeda_1.StreamStatus_OUT_waiting_cycles      @ 0x00000078 : [0] 0x0000000141C9
+STREAMSTATUS_seeda_1_seeda_1.StreamStatus_OUT_active_cycles       @ 0x0000007E : [0] 0x00000001429E
+STREAMSTATUS_seeda_1_seeda_1.StreamStatus_OUT_flags               @ 0x00000084 : [0] 0x20
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_seedb_0_seedb_0.StreamStatus_OUT_working_cycles      @ 0x00000085 : [0] 0x00000000006C
+STREAMSTATUS_seedb_0_seedb_0.StreamStatus_OUT_waiting_cycles      @ 0x0000008B : [0] 0x000000015CFC
+STREAMSTATUS_seedb_0_seedb_0.StreamStatus_OUT_active_cycles       @ 0x00000091 : [0] 0x000000015DD1
+STREAMSTATUS_seedb_0_seedb_0.StreamStatus_OUT_flags               @ 0x00000097 : [0] 0x20
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_seedb_1_seedb_1.StreamStatus_OUT_working_cycles      @ 0x00000098 : [0] 0x00000000006C
+STREAMSTATUS_seedb_1_seedb_1.StreamStatus_OUT_waiting_cycles      @ 0x0000009E : [0] 0x000000016ABF
+STREAMSTATUS_seedb_1_seedb_1.StreamStatus_OUT_active_cycles       @ 0x000000A4 : [0] 0x000000016B95
+STREAMSTATUS_seedb_1_seedb_1.StreamStatus_OUT_flags               @ 0x000000AA : [0] 0x20
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_1_output.StreamStatus_OUT_working_cycles      @ 0x000000AB : [0] 0x00000000000C
+STREAMSTATUS_Stream_1_output.StreamStatus_OUT_waiting_cycles      @ 0x000000B1 : [0] 0x000000000000
+STREAMSTATUS_Stream_1_output.StreamStatus_OUT_active_cycles       @ 0x000000B7 : [0] 0x000000006A1E
+STREAMSTATUS_Stream_1_output.StreamStatus_OUT_flags               @ 0x000000BD : [0] 0x10
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x1       
+	field: is_waiting                                                      : [0] 0x0       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_4_output.StreamStatus_OUT_working_cycles      @ 0x000000BE : [0] 0x00000000000C
+STREAMSTATUS_Stream_4_output.StreamStatus_OUT_waiting_cycles      @ 0x000000C4 : [0] 0x000000000000
+STREAMSTATUS_Stream_4_output.StreamStatus_OUT_active_cycles       @ 0x000000CA : [0] 0x00000000710D
+STREAMSTATUS_Stream_4_output.StreamStatus_OUT_flags               @ 0x000000D0 : [0] 0x10
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x1       
+	field: is_waiting                                                      : [0] 0x0       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_7_output.StreamStatus_OUT_working_cycles      @ 0x000000D1 : [0] 0x0000000000D8
+STREAMSTATUS_Stream_7_output.StreamStatus_OUT_waiting_cycles      @ 0x000000D7 : [0] 0x000000000000
+STREAMSTATUS_Stream_7_output.StreamStatus_OUT_active_cycles       @ 0x000000DD : [0] 0x000000011129
+STREAMSTATUS_Stream_7_output.StreamStatus_OUT_flags               @ 0x000000E3 : [0] 0x10
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x1       
+	field: is_waiting                                                      : [0] 0x0       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_10_output.StreamStatus_OUT_working_cycles     @ 0x000000E4 : [0] 0x0000000000D8
+STREAMSTATUS_Stream_10_output.StreamStatus_OUT_waiting_cycles     @ 0x000000EA : [0] 0x000000000000
+STREAMSTATUS_Stream_10_output.StreamStatus_OUT_active_cycles      @ 0x000000F0 : [0] 0x0000000142A1
+STREAMSTATUS_Stream_10_output.StreamStatus_OUT_flags              @ 0x000000F6 : [0] 0x10
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x1       
+	field: is_waiting                                                      : [0] 0x0       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_13_output.StreamStatus_OUT_working_cycles     @ 0x000000F7 : [0] 0x0000000000D8
+STREAMSTATUS_Stream_13_output.StreamStatus_OUT_waiting_cycles     @ 0x000000FD : [0] 0x000000000000
+STREAMSTATUS_Stream_13_output.StreamStatus_OUT_active_cycles      @ 0x00000103 : [0] 0x000000015DD4
+STREAMSTATUS_Stream_13_output.StreamStatus_OUT_flags              @ 0x00000109 : [0] 0x10
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x1       
+	field: is_waiting                                                      : [0] 0x0       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_16_output.StreamStatus_OUT_working_cycles     @ 0x0000010A : [0] 0x0000000000D8
+STREAMSTATUS_Stream_16_output.StreamStatus_OUT_waiting_cycles     @ 0x00000110 : [0] 0x000000000000
+STREAMSTATUS_Stream_16_output.StreamStatus_OUT_active_cycles      @ 0x00000116 : [0] 0x000000016B98
+STREAMSTATUS_Stream_16_output.StreamStatus_OUT_flags              @ 0x0000011C : [0] 0x10
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x1       
+	field: is_waiting                                                      : [0] 0x0       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_28_output.StreamStatus_OUT_working_cycles     @ 0x0000011D : [0] 0x000000000006
+STREAMSTATUS_Stream_28_output.StreamStatus_OUT_waiting_cycles     @ 0x00000123 : [0] 0x000000007103
+STREAMSTATUS_Stream_28_output.StreamStatus_OUT_active_cycles      @ 0x00000129 : [0] 0x000000016AE4
+STREAMSTATUS_Stream_28_output.StreamStatus_OUT_flags              @ 0x0000012F : [0] 0x00
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x0       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_32_output.StreamStatus_OUT_working_cycles     @ 0x00000130 : [0] 0x000000000006
+STREAMSTATUS_Stream_32_output.StreamStatus_OUT_waiting_cycles     @ 0x00000136 : [0] 0x000000006A14
+STREAMSTATUS_Stream_32_output.StreamStatus_OUT_active_cycles      @ 0x0000013C : [0] 0x000000016ADC
+STREAMSTATUS_Stream_32_output.StreamStatus_OUT_flags              @ 0x00000142 : [0] 0x00
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x0       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_36_output.StreamStatus_OUT_working_cycles     @ 0x00000143 : [0] 0x0000000000D8
+STREAMSTATUS_Stream_36_output.StreamStatus_OUT_waiting_cycles     @ 0x00000149 : [0] 0x000000011053
+STREAMSTATUS_Stream_36_output.StreamStatus_OUT_active_cycles      @ 0x0000014F : [0] 0x000000016BAA
+STREAMSTATUS_Stream_36_output.StreamStatus_OUT_flags              @ 0x00000155 : [0] 0x20
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_40_output.StreamStatus_OUT_working_cycles     @ 0x00000156 : [0] 0x0000000000D8
+STREAMSTATUS_Stream_40_output.StreamStatus_OUT_waiting_cycles     @ 0x0000015C : [0] 0x000000015CF9
+STREAMSTATUS_Stream_40_output.StreamStatus_OUT_active_cycles      @ 0x00000162 : [0] 0x000000016BAA
+STREAMSTATUS_Stream_40_output.StreamStatus_OUT_flags              @ 0x00000168 : [0] 0x20
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_44_output.StreamStatus_OUT_working_cycles     @ 0x00000169 : [0] 0x0000000000D8
+STREAMSTATUS_Stream_44_output.StreamStatus_OUT_waiting_cycles     @ 0x0000016F : [0] 0x0000000141C9
+STREAMSTATUS_Stream_44_output.StreamStatus_OUT_active_cycles      @ 0x00000175 : [0] 0x000000016BAA
+STREAMSTATUS_Stream_44_output.StreamStatus_OUT_flags              @ 0x0000017B : [0] 0x20
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_48_output.StreamStatus_OUT_working_cycles     @ 0x0000017C : [0] 0x0000000000D8
+STREAMSTATUS_Stream_48_output.StreamStatus_OUT_waiting_cycles     @ 0x00000182 : [0] 0x000000016AC2
+STREAMSTATUS_Stream_48_output.StreamStatus_OUT_active_cycles      @ 0x00000188 : [0] 0x000000016BAA
+STREAMSTATUS_Stream_48_output.StreamStatus_OUT_flags              @ 0x0000018E : [0] 0x20
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x0       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_CpuStreamKernel_EI_0.StreamStatus_OUT_working_cycles @ 0x0000018F : [0] 0x000000000032
+STREAMSTATUS_CpuStreamKernel_EI_0.StreamStatus_OUT_waiting_cycles @ 0x00000195 : [0] 0x000000000000
+STREAMSTATUS_CpuStreamKernel_EI_0.StreamStatus_OUT_active_cycles  @ 0x0000019B : [0] 0x0000017EE478
+STREAMSTATUS_CpuStreamKernel_EI_0.StreamStatus_OUT_flags          @ 0x000001A1 : [0] 0x50
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x1       
+	field: is_waiting                                                      : [0] 0x0       
+	field: is_done                                                         : [0] 0x1       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_CpuStreamKernel_EI_1.StreamStatus_OUT_working_cycles @ 0x000001A2 : [0] 0x000000000032
+STREAMSTATUS_CpuStreamKernel_EI_1.StreamStatus_OUT_waiting_cycles @ 0x000001A8 : [0] 0x000000000000
+STREAMSTATUS_CpuStreamKernel_EI_1.StreamStatus_OUT_active_cycles  @ 0x000001AE : [0] 0x0000017EE478
+STREAMSTATUS_CpuStreamKernel_EI_1.StreamStatus_OUT_flags          @ 0x000001B4 : [0] 0x50
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x1       
+	field: is_waiting                                                      : [0] 0x0       
+	field: is_done                                                         : [0] 0x1       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_50_output.StreamStatus_OUT_working_cycles     @ 0x000001B5 : [0] 0x000000000032
+STREAMSTATUS_Stream_50_output.StreamStatus_OUT_waiting_cycles     @ 0x000001BB : [0] 0x0000017EE448
+STREAMSTATUS_Stream_50_output.StreamStatus_OUT_active_cycles      @ 0x000001C1 : [0] 0x0000017EE479
+STREAMSTATUS_Stream_50_output.StreamStatus_OUT_flags              @ 0x000001C7 : [0] 0x60
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x1       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_54_output.StreamStatus_OUT_working_cycles     @ 0x000001C8 : [0] 0x000000000032
+STREAMSTATUS_Stream_54_output.StreamStatus_OUT_waiting_cycles     @ 0x000001CE : [0] 0x0000017EE448
+STREAMSTATUS_Stream_54_output.StreamStatus_OUT_active_cycles      @ 0x000001D4 : [0] 0x0000017EE479
+STREAMSTATUS_Stream_54_output.StreamStatus_OUT_flags              @ 0x000001DA : [0] 0x60
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x1       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_21_output.StreamStatus_OUT_working_cycles     @ 0x000001DB : [0] 0x00000000000C
+STREAMSTATUS_Stream_21_output.StreamStatus_OUT_waiting_cycles     @ 0x000001E1 : [0] 0x0000017EE46C
+STREAMSTATUS_Stream_21_output.StreamStatus_OUT_active_cycles      @ 0x000001E7 : [0] 0x0000017EE477
+STREAMSTATUS_Stream_21_output.StreamStatus_OUT_flags              @ 0x000001ED : [0] 0x60
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x1       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_24_output.StreamStatus_OUT_working_cycles     @ 0x000001EE : [0] 0x00000000000C
+STREAMSTATUS_Stream_24_output.StreamStatus_OUT_waiting_cycles     @ 0x000001F4 : [0] 0x0000017EE46C
+STREAMSTATUS_Stream_24_output.StreamStatus_OUT_active_cycles      @ 0x000001FA : [0] 0x0000017EE477
+STREAMSTATUS_Stream_24_output.StreamStatus_OUT_flags              @ 0x00000200 : [0] 0x60
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x0       
+	field: is_waiting                                                      : [0] 0x1       
+	field: is_done                                                         : [0] 0x1       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_52_output.StreamStatus_OUT_working_cycles     @ 0x00000201 : [0] 0x00000000000C
+STREAMSTATUS_Stream_52_output.StreamStatus_OUT_waiting_cycles     @ 0x00000207 : [0] 0x000000000002
+STREAMSTATUS_Stream_52_output.StreamStatus_OUT_active_cycles      @ 0x0000020D : [0] 0x0000017EE478
+STREAMSTATUS_Stream_52_output.StreamStatus_OUT_flags              @ 0x00000213 : [0] 0x50
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x1       
+	field: is_waiting                                                      : [0] 0x0       
+	field: is_done                                                         : [0] 0x1       
+	field: fifo_exists                                                     : [0] 0x0       
+STREAMSTATUS_Stream_56_output.StreamStatus_OUT_working_cycles     @ 0x00000214 : [0] 0x00000000000C
+STREAMSTATUS_Stream_56_output.StreamStatus_OUT_waiting_cycles     @ 0x0000021A : [0] 0x000000000002
+STREAMSTATUS_Stream_56_output.StreamStatus_OUT_active_cycles      @ 0x00000220 : [0] 0x0000017EE478
+STREAMSTATUS_Stream_56_output.StreamStatus_OUT_flags              @ 0x00000226 : [0] 0x50
+	field: error_working_and_waiting                                       : [0] 0x0       
+	field: error_working_after_done                                        : [0] 0x0       
+	field: error_fifo_overflow                                             : [0] 0x0       
+	field: error_fifo_underflow                                            : [0] 0x0       
+	field: is_push_interface                                               : [0] 0x1       
+	field: is_waiting                                                      : [0] 0x0       
+	field: is_done                                                         : [0] 0x1       
+	field: fifo_exists                                                     : [0] 0x0       
+ifpga.ifpga_ctrl                                                  @ 0x00000227 : [0] 0x00
+ifpga.ifpga_local_session_key                                     @ 0x00000228 : [0] 0x00
+ifpga.ifpga_remote_session_key                                    @ 0x00000229 : [0] 0x00
+ifpga.ifpga_stall_on_session_down                                 @ 0x0000022A : [0] 0x00
+ifpga.ifpga_status                                                @ 0x0000022B : [0] 0x03F8
+	field: HARD_ERROR                                                      : [0] 0x0       
+	field: SOFT_ERROR                                                      : [0] 0x0       
+	field: FRAME_ERROR                                                     : [0] 0x0       
+	field: CHANNEL_UP                                                      : [0] 0x1       
+	field: LANE_UP                                                         : [0] 0xf       
+	field: TX_LOCK                                                         : [0] 0x1       
+	field: RX_FIFO_ALIGNED                                                 : [0] 0x1       
+	field: MISALIGN_RESET_LIMIT_REACHED                                    : [0] 0x0       
+	field: MISALIGN_RESET_COUNT                                            : [0] 0x0       
+ifpga.ifpga_tx_count                                              @ 0x0000022D : [0] 0x00022E23
+ifpga.ifpga_rx_count                                              @ 0x00000231 : [0] 0x000023B3
+ifpga.ifpga_tx_sof_count                                          @ 0x00000235 : [0] 0x00011720
+ifpga.ifpga_tx_eof_count                                          @ 0x00000239 : [0] 0x00011728
+ifpga.ifpga_rx_sof_count                                          @ 0x0000023D : [0] 0x0000111A
+ifpga.ifpga_rx_eof_count                                          @ 0x00000241 : [0] 0x0000111F
+ifpga.ifpga_frame_err_count                                       @ 0x00000245 : [0] 0x0000
+ifpga.ifpga_soft_err_count                                        @ 0x00000247 : [0] 0x0000
+ifpga.ifpga_hard_err_count                                        @ 0x00000249 : [0] 0x0000
+ifpga.ifpga_local_id                                              @ 0x0000024B : [0] 0x00
+ifpga.ifpga_remote_id                                             @ 0x0000024C : [0] 0x00
+ifpga.ifpga_sessionmgr_data_enable                                @ 0x0000024D : [0] 0x01
+SanityBlock.clock_counters_base_clock_cclk                        @ 0x0000024E : [0] 0x0400
+SanityBlock.clock_counters_STREAM                                 @ 0x00000250 : [0] 0x0800
+SanityBlock.seen_reset_reset_n                                    @ 0x00000252 : [0] 0x01
+SanityBlock.seen_reset_STREAM_rst                                 @ 0x00000253 : [0] 0x01
+SanityBlock.seen_reset_STREAM_rst_delay                           @ 0x00000254 : [0] 0x01
+SanityBlock.seen_toggle_crash_input                               @ 0x00000255 : [0] 0x00
+/homes/mk306/.maxdebug/cache/CpuStream_9b630a0cdfa673973c484dcf4b514f49_v2013.2.2 1 1 0 0 "" "" "" 1 "GRAPH" 1 0 0 "/dev/maxeler1" ""
+MaxDebug version 2013.2.2
+/homes/mk306/.maxdebug/cache/CpuStream_9b630a0cdfa673973c484dcf4b514f49_v2013.2.2 1 1 0 0 "" "" "" 1 "GRAPH" 1 0 0 "/dev/maxeler2" ""
+MaxDebug version 2013.2.2
+/homes/mk306/.maxdebug/cache/CpuStream_9b630a0cdfa673973c484dcf4b514f49_v2013.2.2 1 1 0 0 "" "" "" 1 "GRAPH" 1 0 0 "/dev/maxeler3" ""
+MaxDebug version 2013.2.2
+

@@ -1,0 +1,3 @@
+rm -rf /homes/mk306/.maxdebug/cache
+Building maxdebug test program.........done.
+

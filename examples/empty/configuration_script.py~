@@ -1,0 +1,50 @@
+#results_folder_path = '/mnt/data/cccad3/mk306/log'
+import os
+results_folder_path = '/homes/mk306/log' ### CHANGE WHERE TO STORE TEMPORARY FILES
+configuration_folder_path = os.path.split(os.path.realpath(__file__))[0]+"/"
+##set to wherever you want the images to be stored
+#images_folder_path = 
+enable_traceback = True
+eval_correct = False
+
+goal = "min" ## CHANGE TO MAX FOR MAXIMIZATION PROBLEMS
+
+max_eval = 5
+### Basic setup
+search = 'brute'
+trials_count = 1
+
+max_fitness = 350.0
+sample_on="ei"
+surrogate_type = 'bayes2'  # Can be proper or dummy
+
+### Trial-specific variables
+
+#trials_type = 'P_ARDEGO_Trial'
+trials_type = 'MonteCarloTrial'
+
+### Visualisation
+
+vis_every_X_steps = 1 # How often to visualize
+counter = 'g'  # The counter that visualization uses as a 'step'
+max_counter = max_iter  # Maximum value of counter
+
+### Regressor and classifier type
+regressor = 'GaussianProcess4'
+#regressor = 'R'
+#regressor = 'KMeansGaussianProcessRegressor'
+#classifier = 'RelevanceVectorMachine'
+classifier = 'SupportVectorMachine'
+Kfolds=5
+### GPR Regression settings
+regr = 'linear'
+corr2 = 'squared_exponential'
+corr = 'anisotropic'
+theta0 = -10.0
+thetaL = 0.001
+thetaU = 10.0
+nugget = 3
+random_start = 10
+run_name = "quad_" + corr + "_" + regressor + "_" + surrogate_type  + "_" + str(max_stdv) + "_" + str(random_start) + "_th_.13d_stratclass"
+
+
