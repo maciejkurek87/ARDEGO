@@ -1,8 +1,5 @@
 #include <math.h>
 #include <stdlib.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 #define PI 3.141592654
 #define N 1
 #define MAX_LAMBDAS 1
@@ -57,38 +54,24 @@ double gaussrand2()
 
 double ei_multi_min(int max_mius, double miu_mean[], double miu_s2[], int max_lambdas, double lambda_s2[], double lambda_mean[], double y_best, int n){
     double sum_ei=0.0;
-    double random[100];
-    double svector[100];
+    double ei=0.0;
     for (int k=0;k<n;k++){
         double min = y_best;
-        
-        // prepare vector of uniform random numbers of lenght lambdas + mius
-        for (int m = 0; m < max_mius + max_lambdas; m++) {
-            random[m] = gaussrand1();
-        }
-        
-        for (int l = 0; l < max_mius + max_lambdas; l++) {
-            for (int ll=0; ll < max_mius + max_lambdas; ll++) {
-                svector[l] += lambda_s2[ll + l  * (max_mius + max_lambdas)] * random[ll];
-            }
-        }
         for(int i=0;i<max_mius;i++){
-            double mius = svector[i] + miu_mean[i];
-            svector[i] = 0.0;
+            double mius = gaussrand1()*miu_s2[i] + miu_mean[i];
             if (mius < min)
                 min = mius;
         }
-        double min2=1000000000000.0;
+        double min2=100000000.0;
         for(int j=0;j<max_lambdas;j++){
-            double lambda = svector[j + max_mius] + lambda_mean[j];
-            svector[j + max_mius] = 0.0;
+            double lambda = gaussrand1()*lambda_s2[j] + lambda_mean[j];
             if (lambda < min2)
                 min2 = lambda;
         }
         
         double e_i = min - min2;
-        if (e_i < 0.0)
-            e_i = 0.0;
+        if (ei < 0.0)
+            ei = 0.0;
         sum_ei = e_i + sum_ei;
     }
     return sum_ei;
@@ -96,37 +79,24 @@ double ei_multi_min(int max_mius, double miu_mean[], double miu_s2[], int max_la
 
 double ei_multi_max(int max_mius, double miu_mean[], double miu_s2[], int max_lambdas, double lambda_s2[], double lambda_mean[], double y_best, int n){
     double sum_ei=0.0;
-    double random[100];
-    double svector[100];
-    int ylenght = max_mius + max_lambdas;
+    double ei=0.0;
     for (int k=0;k<n;k++){
         double min = y_best;
-         // prepare vector of uniform random numbers of lenght lambdas + mius
-        for (int m = 0; m < ylenght; m++) {
-            random[m] = gaussrand1();
-        }
-        
-        for (int l = 0; l < ylenght; l++) {
-            for (int ll=0; ll < ylenght; ll++) {
-                svector[l] += lambda_s2[ll + l  * ylenght] * random[ll];
-            }
-        }
         for(int i=0;i<max_mius;i++){
-            double mius = svector[i] + miu_mean[i];
-            svector[i] = 0.0;
+            double mius = gaussrand1()*miu_s2[i] + miu_mean[i];
             if (mius > min)
                 min = mius;
         }
-        double min2=-1000000000000.0;
+        double min2=-100000000.0;
         for(int j=0;j<max_lambdas;j++){
-            double lambda = svector[j + max_mius] + lambda_mean[j];
-            svector[j + max_mius] = 0.0;
+            double lambda = gaussrand1()*lambda_s2[j] + lambda_mean[j];
             if (lambda > min2)
                 min2 = lambda;
         }
+        
         double e_i = min2 - min;
-        if (e_i < 0.0)
-            e_i = 0.0;
+        if (ei < 0.0)
+            ei = 0.0;
         sum_ei = e_i + sum_ei;
     }
     return sum_ei;

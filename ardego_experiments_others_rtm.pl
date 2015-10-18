@@ -13,13 +13,12 @@ $limit_lambda_search = "False";
 $weights_on = "True";
 
 $fitnes_function = "xinyu_rtm";
-$run_dir = "examples/xinyu_rtm/"; 
+$run_dir = "examples/${fitnes_function}/"; 
 $config_file = $run_dir."configuration_script.py";
 $fitness_file = $run_dir."fitness_script.py";
 $sampling_fancy = "True";
 
-$results_folder = "/data/mk306/join/ardeg_xinyu_maia_f5_2_sample_lambda_${limit_lambda_search}_${n_sims}_${weights_on}_${sampling_fancy}";
-
+$results_folder = "/data/mk306/ardego_maiaUsingMax3_${fitnes_function}_software_latin_lambda_${limit_lambda_search}_${n_sims}_${weights_on}_${sampling_fancy}";
 
 #system("rm -Rf $results_folder");
 $parallelism = 4;
@@ -39,7 +38,7 @@ if ($pid) {
 sleep($i * 5);
 $epoch = time_since_epoch();
 chomp($epoch);
-$tempfile = "/data/mk306/temp_ardego_rtm2_know_$epoch.txt";
+$tempfile = "/data/mk306/temp$epoch.txt";
 $tempfolder = "/data/mk306/ardego_".$epoch."/";
 system("mkdir ".$tempfolder); 
 system("cp -Rf * ".$tempfolder);
@@ -51,14 +50,13 @@ print $tempfolder."\n";
 modify("results_folder_path =", 'results_folder_path ="'.$results_folder.'"', $config_file);
 modify("trials_type =", 'trials_type =\"P_ARDEGO_Trial\"', $config_file);
 modify("surrogate_type =", 'surrogate_type ="bayes2"', $config_file);
-modify("trials_count =", "trials_count = 10", $config_file);
+modify("trials_count =", "trials_count = 20", $config_file);
 modify("n_sims =", "n_sims = ".$n_sims, $config_file);
 modify('corr =', 'corr = "anisotropic"', $config_file);
 modify('goal =', 'goal = "min"', $config_file);
 modify('limit_lambda_search =', "limit_lambda_search = ${limit_lambda_search}", $config_file);
 modify('weights_on =', "weights_on = ${weights_on}", $config_file);
 modify('sampling_fancy =', "sampling_fancy = ${sampling_fancy}", $config_file);
-modify("Maia = ", "Maia = True", $fitness_file);
 
 $j = 0;
 

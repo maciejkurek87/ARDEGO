@@ -63,7 +63,6 @@ def termCond(best):
 def transformation_function2(part):
     return [[1., 2., 4., 7., 8., 14., 16., 28., 56., 112.][int(part[0])],part[1]]
                        
-<<<<<<< HEAD
 def transformation_function_image():
     def trans_axis0(val):
         return str(int([1., 2., 4., 7., 8., 14., 16., 28., 56., 112., 112.][int(round(val))]))
@@ -71,8 +70,6 @@ def transformation_function_image():
         return str(int(val))
     return trans_axis0, trans_axis1
                        
-=======
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
 def fitnessFunc(input_particle):
     particle = transformation_function2(input_particle)
     global reconfiguration_time_set,maxvalue

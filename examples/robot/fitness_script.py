@@ -7,7 +7,6 @@ from deap import creator
 from deap import tools
 
 from numpy import *
-import numpy as np
 from copy import deepcopy 
 from numpy.random import uniform, seed,rand
 
@@ -45,29 +44,21 @@ from numpy import *
 platform = "Maia" #"Maia"
     
 designSpace = []
-accuracy_limit = 5.25
-always_valid = [0.,40., 8096.]    
-maxvalue = 100000.0
-minVal = 0.0
-maxVal = maxvalue
-worst_value =maxvalue
-        
-optVal = {4.4:5457.0, 4.7:5276., 5.0:5237., 5.25:5237.}[accuracy_limit]
 
-
-
-divisors = [1, 2, 4, 8, 16, 32]
-
-designSpace.append( {"min":0.0,"max":5.0,"step":1.0, "type":"discrete","smin":-5.0,"smax":5.0, "set":"h"}) ## 
+always_valid = [1.,10., 2048.]    
+maxvalue = 50.0
+minVal = 50.0
+maxVal = 160.0
+worst_value = 50.0
+optVal = 155.0 
+designSpace.append({"min":1.0,"max":4.0,"step":1.0,"type":"discrete","smin":-5.0,"smax":5.0, "set":"h"})
 designSpace.append({"min":10.0,"max":40.0,"step":1.0,"type":"discrete","smin":-5.0,"smax":5.0, "set":"h"})
-designSpace.append({"min":2048.0,"max":8096.0,"step":48.0,"type":"discrete","smin":-2.0,"smax":2.0, "set":"s"})
-
-
+designSpace.append({"min":2048.0,"max":8192.0,"step":60.0,"type":"discrete","smin":-2.0,"smax":2.0, "set":"s"})
 dist_map = {0:"log", 1:"log", 2:"log"}
 dist_params_map = {0:(0.6803998452431661, 94.595933564461035, 106.33247051307779), 1:(0.84684668089725457, 195.60591958904155, 144.4860482636887), 2:(0.87210877144381505, 47.249766528482198, 498.77346263250172)}
 
     
-error_labels = {0:'Valid',1:'par',2:'overmap',3:'Accuracy'  }
+error_labels = {0:'Valid',1:'Overmap' }
     
 def get_x_axis_name():
     if doCores:
@@ -82,12 +73,12 @@ def get_y_axis_name():
         return "$m_w$"
 
 def name():
-    return "fF_robot"
+    return "robot_"  + platform + "_" + str(maxError) + "_doCores" + str(doCores) + "_doDf" + str(doDf) + "_errorCorrection" + str(errorCorrection) 
     
 def termCond(best):
     global optVal
     print str(best) + " " + str(optVal)
-    return best < optVal
+    return best > optVal
     
 rotate = True
 
@@ -97,7 +88,7 @@ allData=None
 def get_z_axis_name():
     return "Throughput ($\phi_{int}$)"
     
-def fitnessFunc(particle, state, output = 0):
+def fitnessFunc(particle, state):
     global allData
     #print particle
     if not allData:
@@ -105,114 +96,51 @@ def fitnessFunc(particle, state, output = 0):
     # Dimensions dynamically rescalled
     ############Dimensions
      
-    cores = 2 ** int(particle[0]) 
-    mw = int(particle[1]) - 10
-    np_down = int(floor((particle[2] - 2048.0) / 60.0))
-    np_up = int(ceil((particle[2] - 2048.0) / 60.0))
-    np_p = int(particle[2] - 2048.0)
+    mw = int(particle[0]) - 4
+    freq = int(particle[1]) - 80
+    cores = int(particle[2]) - 1
+    
+    try:
+        code = allData[1][cores][mw][freq]
+        throughput =  array([allData[2][cores][mw][freq]])
+    except:
+        pdb.set_trace()
+    
+    cost, state = getCost( cores, mw, freq, code, state) ## we need to cast to float
+    
+    ##resource prediciton
+    resource_util = max([allData[-1][cores][mw][freq],allData[-2][cores][mw][freq],allData[-3][cores][mw][freq]])
+        
+    if resource_util > 100.0 or ( mw > 41 and cores == 1) or ( mw > 29 and cores == 2) or ( mw > 14 and cores == 3) or ( mw > 8 and cores == 4) :
+        cost = predict_uniform(70.0, 100.0)
+        return ((array([maxvalue]), array([5]),array([1]), cost), state)
+        
+    #print allData[mw][df][cores], code, isValid    
+    ### overmapping error
     #pdb.set_trace()
-    if cores > 4:
-        pass ## we use those bitstreams then.. they are broken and are approximately what 32 would be
-        execution_time = 1.0
-        code = 1
-        cores = 4
-        accuracy = 1.0
-    elif (mw  % 2 == 0): ## interpolation across np
-        down_execution_time = allData[0][0][mw][np_down]
-        down_accuracy       = allData[1][0][mw][np_down]
-
-        up_execution_time = allData[0][0][mw][np_up] 
-        up_accuracy       = allData[1][0][mw][np_up]
-        
-        delta = (np_p - np_down * 60.0) / (60.0) 
-        execution_time = (1.0 - delta) * down_execution_time + delta * up_execution_time
-        accuracy = (1.0 - delta) * down_accuracy + delta * up_accuracy
-        
-        code               = allData[3][0][cores][mw]
-    else: ## interpolation across mw
-        ## interpolatie lower
-        down_execution_time = allData[0][0][mw-1][np_down]
-        down_accuracy       = allData[1][0][mw-1][np_down]
-        
-        up_execution_time = allData[0][0][mw-1][np_up] 
-        up_accuracy       = allData[1][0][mw-1][np_up]
-        
-        delta = (np_p - np_down * 60.0) / (60.0) 
-        down_down_execution_time = (1.0 - delta) * down_execution_time + delta * up_execution_time
-        down_down_accuracy = (1.0 - delta) * down_accuracy + delta * up_accuracy
-        
-        ##interoplate upper
-        down_execution_time = allData[0][0][mw+1][np_down]
-        down_accuracy       = allData[1][0][mw+1][np_down]
-        
-        up_execution_time = allData[0][0][mw+1][np_up] 
-        up_accuracy       = allData[1][0][mw+1][np_up]
-        
-        delta = (np_p - np_down * 60.0) / (60.0) 
-        up_up_execution_time = (1.0 - delta) * down_execution_time + delta * up_execution_time
-        up_up_accuracy = (1.0 - delta) * down_accuracy + delta * up_accuracy
-        
-        delta = 0.5
-        execution_time = (down_down_execution_time * delta  + delta * up_up_execution_time)
-        accuracy = up_up_accuracy * delta  + delta * down_down_accuracy
-        
-        up_code           = allData[3][0][cores][mw-1]
-        down_code           = allData[3][0][cores][mw+1]
-        
-        code = up_code
-            
-    execution_time = execution_time / (cores ) 
-    
-    cost, state = getCost( cores, mw, np, state) ## we need to cast to float
-    
-    if code == 0 and (accuracy > accuracy_limit):
-        code = 3
-    
-    if output == 0:
-        if code == 1: ## timing
-            return ((array([maxvalue]), array([1]),array([1]), cost), state)
-        elif code == 2: ## MPR failed
-            return ((array([maxvalue]), array([2]),array([1]), cost), state)
-        elif code == 3: ## innacurate
-            return ((array([execution_time]), array([3]),array([0]), cost), state)
-        elif code == 4: ## exit code 30
-            return ((array([maxvalue]), array([4]),array([1]), cost), state)
-        else: ## code 0, ok
-            return ((array([execution_time]), array([0]),array([0]), cost), state)
-    elif output == 1:
-            return resource
-    elif output == 2: #it is a linear model
-        return accuracy
-    else:
-        print "KURWA COS NIE TAK"
-        return None
+    if code == 1: ## timing
+        return ((array([maxvalue]), array([1]),array([1]), cost), state)
+    elif code == 2: ## MPR failed
+        return ((array([maxvalue]), array([2]),array([1]), cost), state)
+    elif code == 3: ## overmapping
+        return ((array([maxvalue]), array([3]),array([1]), cost), state)
+    elif code == 4: ## exit code 30
+        return ((array([maxvalue]), array([4]),array([1]), cost), state)
+    else: ## code 0, ok
+        return ((throughput, array([0]),array([0]), cost), state)
 
 ## state, do we have bitstream in the reopi?
-def getCost(cores, mw, np, bit_stream_repo):
+def getCost(cores, mw, freq, code, bit_stream_repo):
     global allData
     bit_stream_repo_copy = deepcopy(bit_stream_repo) 
     if bit_stream_repo is None:
         bit_stream_repo_copy = {}
-    software_cost  = array([100.0 + 200.0 * random.random()]) ## it is in the range of few minutes (experiments were repeated few hundred times, each taking up to 1~2 secnods)
-    if bit_stream_repo_copy.has_key((cores, mw)): ## bit_stream evalauted
-        return array([software_cost]), bit_stream_repo_copy
+    if bit_stream_repo_copy.has_key((cores, mw, freq)): ## bit_stream evalauted
+        return array([0.0]), bit_stream_repo_copy
     else:
-        bit_stream_repo_copy[(cores, mw)] = True
-        cost = array([allData[2][0][cores][mw] + software_cost])
-        if allData[2][0][cores][mw] == 0.0:  ## empty, then interpolate
-            cost = array([allData[2][0][cores][mw-1]*0.5 + allData[2][0][cores][mw+1] * 0.5 + software_cost])
+        bit_stream_repo_copy[(cores, mw, freq)] = True
+        cost = array([predict_cost(code)])
         return cost , bit_stream_repo_copy  ##software cost, very small fraction and linear
-       
-def has_hardware(running_que, running_que_cost, part):
-    bit_stream_repo_copy = {}
-    idx = 0 
-    for pt in running_que:
-        bit_stream_repo_copy[(pt[0],pt[1])] = running_que_cost[idx]
-        idx = idx + 1
-    if bit_stream_repo_copy.has_key((part[0], part[1])):
-        return True, bit_stream_repo_copy[(part[0], part[1])]
-    else:
-        return False, 0.0
                 
 def predict_cost(error_code):
     dist = dist_map[error_code]
@@ -225,9 +153,6 @@ def predict_cost(error_code):
         return predict_lognormal(*params)
     else: 
         print "pierdol sie"
-           
-def transferValid(part):
-    return True
            
 def fit_lognormal(data):
     shape, loc, scale = stats.lognorm.fit(data, loc=0)
@@ -259,97 +184,100 @@ def get_index(row, row_idx, desSp_idx):
 def get_shape():
     return tuple([(int((d["max"] - d["min"]) / d["step"]) + 1) for d in designSpace])
            
-def load_data(folder_path):    
-    spamReader = csv.reader(open(folder_path, 'rb'), delimiter=' ', quotechar='"')
-    execution_time = np.zeros(shape=(5,31,103))
-    accuracy = np.zeros(shape=(5,31,103))
-    count = np.zeros(shape=(5,31,103))
-        
-    for row in spamReader:
-        if len(row) == 7:
-            try:
-                if not (float(row[6]) == 0.0 or float(row[5]) == 0.0):
-                    execution_time[int(row[0])-7][(int(row[3])-10)][(int(row[4])-2048)/60] = float(row[5]) + execution_time[int(row[0])-7][(int(row[3])-10)][(int(row[4])-2048)/60]
-                    accuracy[int(row[0])-7][(int(row[3])-10)][(int(row[4])-2048)/60] = float(row[6]) + accuracy[int(row[0])-7][(int(row[3])-10)][(int(row[4])-2048)/60]
-                    count[int(row[0])-7][(int(row[3])-10)][(int(row[4])-2048)/60] = count[int(row[0])-7][(int(row[3])-10)][(int(row[4])-2048)/60] + 1
-            except:
-                pdb.set_trace()
-    return execution_time, accuracy, count
-    
-def load_cost(folder_path):
-    spamReader = csv.reader(open(folder_path, 'rb'), delimiter=',', quotechar='"')
-    cost = np.zeros(shape=(5,5,31))
-    code = np.zeros(shape=(5,5,31))
-        
-    for row in spamReader:
-        try:            
-            for i in range(103):
-                cost[int(row[0])-7][int(row[1])][(int(row[2])-10)] = float(row[5])
-                code[int(row[0])-7][int(row[1])][(int(row[2])-10)] = float(row[3])
-        except:
-            pdb.set_trace()
-    return cost, code
-           
 def my_interpolate():
     folder_path = "/homes/mk306/all_results_robot_all.txt"
-    cost_folder_path = "/homes/mk306/MLO/examples/robot/all_results_robots_builds.csv"
     spamReader = csv.reader(open(folder_path, 'rb'), delimiter=' ', quotechar='"')
-    execution_time, accuracy, count = load_data(folder_path)
+    execution_time = zeros(shape=get_shape())
+    accuracy = zeros(shape=get_shape())
+    count = zeros(shape=get_shape())
+    for row in spamReader:
+        if len(row) == 7:
+            if not (float(row[6]) == 0.0 or float(row[5]) == 0.0):
+                try:
+                    execution_time[0][(int(row[3])-10)/2][(int(row[4])-2048)/60] = float(row[5]) + execution_time[0][(int(row[3])-10)/2][(int(row[4])-2048)/60]
+                    accuracy[0][(int(row[3])-10)/2][(int(row[4])-2048)/60] = float(row[6]) + accuracy[0][(int(row[3])-10)/2][(int(row[4])-2048)/60]
+                    count[0][(int(row[3])-10)/2][(int(row[4])-2048)/60] = count[0][(int(row[3])-10)/2][(int(row[4])-2048)/60] + 1
+                except:
+                    pdb.set_trace()
+
+    ## for both 0 and 2 gaussian mixture
+    ## for 0 log tail
+    ## 0 lognormal
+    ## 1 normal
+    ## 2 and 4 normal
+    ## 3 uniofrm
     execution_time = execution_time / count
     accuracy = accuracy / count
-    cost, code = load_cost(cost_folder_path)
-    return execution_time, accuracy, cost, code
+    result_files=['all_results_robot_errors.txt']
+    module_path = os.path.dirname(__file__)
+    if module_path:
+        module_path = module_path + "/"
+    points = []
+    values = [] 
+    all_results = []
+    for result_file in result_files:
+        spamReader = csv.reader(open(module_path + result_file, 'rb'), delimiter=' ', quotechar='"')
+        for row in spamReader:
+            row_0 = int(row[0])
+            row_1 = int(row[1])
+            row_2 = int(row[2])
+            row_4 = row[3:]
+            points.append([row_0,row_1,row_2])
+            values.append([float(value) for value in row_4])
+    grid_x, grid_y, grid_z =  mgrid[designSpace[0]["min"]:designSpace[0]["max"]: get_shape()[0] * 1j, designSpace[1]["min"]:designSpace[1]["max"]: get_shape()[1] * 1j, designSpace[2]["min"]:designSpace[2]["max"]: get_shape()[2] * 1j]
+    
+    points_n = array(points)  ### all the points from which we can interpolate
+    values_n = array(values)  ### the data corresponding to those points
+    ###
+    ###
+    ### EXIT CODES
+    ###
+    ###
+    
+    training_labels = array(values)[:,0].reshape(len(values),1)
+    
+    def plot_hist(x):
+        import numpy as np
+        import matplotlib.mlab as mlab
+        import matplotlib.pyplot as plt
+
+
+        # example data
+        mu = 100 # mean of distribution
+        sigma = 15 # standard deviation of distribution
+
+        num_bins = 50
+        # the histogram of the data
+        n, bins, patches = plt.hist(x, num_bins, normed=1, facecolor='green', alpha=0.5)
+        # add a 'best fit' line
+        y = mlab.normpdf(bins, mu, sigma)
+        plt.plot(bins, y, 'r--')
+        plt.xlabel('Smarts')
+        plt.ylabel('Probability')
+        plt.title(r'Histogram of IQ: $\mu=100$, $\sigma=15$')
+
+        # Tweak spacing to prevent clipping of ylabel
+        plt.subplots_adjust(left=0.15)
+        plt.show()
+    
+    for error_code in [0,1,2]:#;,1,2,3,4]:
+        X =[] 
+        Y =[]
+        for point,value in zip(points,values):
+            code = value[0]
+            cost = value[2]
+            if (code == error_code):# & (cost > 140):
+                X.append(point)
+                Y.append(cost)
+        
+    all_results.append(execution_time)
+    all_results.append(accuracy)
+                    
+    for i in range(1,len(row_4)):
+            data = griddata(points_n, values_n[:,i], (grid_x, grid_y, grid_z), method='linear')
+            all_results.append(data)
+                    
+    return all_results
                 
 if __name__ == '__main__':
-    all_results = my_interpolate()
-    import itertools 
-    maxEI = 100000000000.0
-    maxEIcord = None
-    space_def = []
-    counter = 0
-    '''
-    xx = (2.0, 2.0, 4.0, 1.0, 1.0, 2.0, 2.0)
-    print fitnessFunc(xx,None)[0][0][0]
-    '''
-    for d in designSpace:
-        space_def.append(arange(d["min"],d["max"]+1.0,d["step"]))
-    #print space_def
-    results = []
-    cost = 0.0
-    
-    for z in itertools.product(*space_def):
-        #print str(z)
-        '''cost = fitnessFunc(z,{})[0][3] + cost + 5.0*(16*5.0*(0.8 + random.random()/5.0))
-            max_cores = allData[11][z[1]][z[2]][0]
-            z = list(z)
-            z[0]=max_cores
-            cost = cost + fitnessFunc(z,{})[0][3]
-            #print fitnessFunc(z,{})[0][3]
-            #print str(z)
-        print cost
-        '''
-    #print fitnessFunc(array([12.,15.,6.]),{})[0]
-    #print fitnessFunc(array([12.,16.,6.]),{})[0]
-        
-        counter = counter + 1
-        #print fitnessFunc(z,{})
-        EI = fitnessFunc(z,{})[0][0]
-        code = fitnessFunc(z,{})[0][1]
-        cost = fitnessFunc(z,{})[0][3]
-        
-        if code == 1: 
-            print z
-            print code
-            print cost
-            print EI
-        #print str(z) + " " +  str(maxEIcord) + " " +  str(maxEI) + " " + str(code)
-        
-        if (maxEI > EI) and (code==0): ## no need for None checking
-            maxEI = EI
-            maxEIcord = z
-    ### 
-    print "DONE!"
-    print maxEIcord
-    print maxEI
-    
-    
+    my_interpolate()

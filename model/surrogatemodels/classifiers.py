@@ -12,7 +12,6 @@ from pyGP_OO.Valid import valid
 from utils import numpy_array_index
 
 from pickle import dumps
-<<<<<<< HEAD
 import pdb
 
 import sys
@@ -20,8 +19,6 @@ if sys.version_info < (2, 7):
     from rvm import *
 else:
     logging.info("cannot use rvms with python versions other than 2.6")
-=======
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
 
 #TODO - should this be an abstract class instead?
 class Classifier(object):
@@ -108,14 +105,9 @@ class SupportVectorMachineClassifier(Classifier):
             inputScaler = preprocessing.StandardScaler().fit(self.training_set)
             scaledSvcTrainingSet = inputScaler.transform(self.training_set)
             all_labels = unique(asarray(self.training_labels))
-<<<<<<< HEAD
             class_weight = dict([(i,1.0)for i in all_labels])
             #class_weights[0] = 2.0
             #pdb.set_trace()
-=======
-            class_weights = dict([(i,1.0)for i in all_labels])
-            class_weights[0] = 2.0
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
             if len(unique(asarray(self.training_labels))) < 2:
                 logging.info('Only one class encountered, we do not need to use a classifier')
                 #self.clf = svm.OneClassSVM()
@@ -123,7 +115,6 @@ class SupportVectorMachineClassifier(Classifier):
                 self.oneclass = True
             else:
                 self.oneclass = False
-<<<<<<< HEAD
                 #class_weight = self.find_frequency(self.training_labels)
                 sample_weight = ones(len(self.training_labels))
                 if self.conf.weights_on :
@@ -150,17 +141,9 @@ class SupportVectorMachineClassifier(Classifier):
                         }
                     #class_weight[1.] = class_weight[1.] #* 1.5
                 logging.info(str(class_weight))
-=======
-                param_grid = {
-                    'gamma': 1.3 ** arange(-10, 10),
-                    'C':     1.05 ** arange(-10, 10)
-                    }
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
                 try:
-                    '''
                     try:
                         self.type = 2
-<<<<<<< HEAD
                         self.clf = GridSearchCV(svm.SVC(class_weight=class_weight), param_grid=param_grid, 
                                         cv=LeaveOneOut(n=len(self.training_labels.reshape(-1))))
                         self.clf.fit(scaledSvcTrainingSet, self.training_labels.reshape(-1))
@@ -182,28 +165,6 @@ class SupportVectorMachineClassifier(Classifier):
                         self.clf = svm.SVC(kernel='rbf', gamma=0.05, C = 10., class_weight=class_weight)
                 self.clf.fit(scaledSvcTrainingSet, self.training_labels.reshape(-1), sample_weight=sample_weight) ## we refit using all data
                 logging.info('Classifier training successful - C:' + str(self.clf.C) + " gama:" +  str(self.clf.gamma))
-=======
-                        self.clf = GridSearchCV(svm.SVC(class_weight = "auto"), param_grid=param_grid,
-                                        cv=StratifiedKFold(
-                                            y=self.training_labels.reshape(-1),
-                                        n_folds=len(self.training_labels)))
-                        self.clf.fit(scaledSvcTrainingSet, self.training_labels.reshape(-1))
-                    except: ##in case when we cannot construct equal proportion folds
-                    '''
-                    self.type = 1
-                    logging.debug('Using KFold cross validation for classifier training')
-                    self.clf = GridSearchCV(svm.SVC(class_weight=class_weights), param_grid=param_grid,
-                                            cv=KFold(n=self.training_labels.shape[0],n_folds=self.training_labels.shape[0]))
-                    self.clf.fit(scaledSvcTrainingSet, self.training_labels.reshape(-1))
-                    self.clf = self.clf.best_estimator_ ## gridsearch cant be pickled...
-                    #logging.info(str(self.training_labels.shape[0])))
-                except Exception, e:## in case for example when we have single element of a single class, cant construct two folds
-                    self.type = 0
-                    logging.debug('One of the classes has only one element, cant use cross validation:' + str(e))
-                    self.clf = svm.SVC(kernel='rbf', gamma=1., C = 1., class_weight=class_weights)
-                    self.clf.fit(scaledSvcTrainingSet, self.training_labels.reshape(-1))
-                logging.info('Classifier training successful')
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
             return True
         except Exception, e:
             logging.error('Classifier training failed.. ' + str(e))

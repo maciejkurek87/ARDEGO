@@ -7,15 +7,15 @@ sub modify {
 
 sub time_since_epoch { return `date +%s` }
 
-$app = 'robot';
-$run_dir = 'examples/'.$app.'/'; 
+$app = 'xinyu_rtm';
+$run_dir = 'examples/xinyu_rtm/'; 
 $config_file = $run_dir."configuration_script.py";
 
 $fitness_file = $run_dir."fitness_script.py";
 
-$results_folder = "/data/mk306/".$app;
+$results_folder = "/data/mk306/hc_rtm";
 #system("rm -Rf $results_folder");
-$parallelism = 5;
+$parallelism = 1;
 system("mkdir ".$results_folder); 
 $pid = 1;
 for ($i=0; $i < $parallelism - 1; $i++) {
@@ -45,17 +45,13 @@ modify("surrogate_type =", 'surrogate_type ="bayes2"', $config_file);
 modify("trials_count =", "trials_count = 20", $config_file);
 
 $j = 0;
-$p_tag  = "parall =";
-@p = ('parall = 1', 'parall = 2', 'parall = 4', 'parall = 8','parall = 16'); 
-$j = 0;
-
-foreach (@p) {
+#@maxError = ('maxError = 0.1', 'maxError = 0.01', 'maxError = 0.001'); 
 if (($j % $parallelism) == ($i - 1)){ #easiest way to divide tasks
     #print $i."\n";
     #print "make run_example2 &> $tempfile\n";
-    print "start $j \n";
+    print "start $j $maxErrorSet $max_stdv \n";
     system("make run_example4 &> $tempfile");
     print "done $j\n";
 }
 $j = $j + 1;
-}
+

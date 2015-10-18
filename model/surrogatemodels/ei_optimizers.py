@@ -59,7 +59,7 @@ def optimize(function, design_space, GEN=5000, surrogate=None, set_best=None):
     best = None
     #### optimization loop
     #pdb.set_trace()
-    pop = toolbox.population(n=D*10)
+    pop = toolbox.population(n=100)
     if not (set_best is None):
         pop[0] = creator.Particle(set_best)
     
@@ -85,8 +85,7 @@ def optimize(function, design_space, GEN=5000, surrogate=None, set_best=None):
         for part in pop:
             toolbox.update(part, g, best)
         toolbox.filter_particles(pop)
-        if g % (GEN/10) == 0 :
-            logging.info("Gen:" + str(100 * float(g)/GEN) + "% done")
+        #pdb.set_trace()
     if best is None or (best.fitness.values[0] == 0.0):    
         return None, [0.0]
     else:

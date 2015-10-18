@@ -16,30 +16,28 @@ import_array();
 
 %inline %{
     double my_ei_multi_max(int max_mius1, double *miu_mean, int max_mius2, double *miu_s2, int max_lambdas1, double *lambda_s2, int max_lambdas2, double *lambda_mean, double y_best, int n){
-    int nn = ((max_mius1 + max_lambdas2) * (max_mius1 + max_lambdas2));
-    if (max_lambdas1 != ((max_mius1 + max_lambdas2) * (max_mius1 + max_lambdas2)) ) {
-        PyErr_Format(PyExc_ValueError, "Arrays of lengths (%d,%d) given", max_lambdas2, nn);
+    if (max_mius1 != max_mius2) {
+        PyErr_Format(PyExc_ValueError, "Arrays of lengths (%d,%d) given", max_mius1, max_mius2);
         return 0.0;
     }
-    if (max_mius2 != 0) {
-        PyErr_Format(PyExc_ValueError, "Array max_mius2 should be empty");
+    if (max_lambdas1 != max_lambdas2) {
+        PyErr_Format(PyExc_ValueError, "Arrays of lengths (%d,%d) given", max_lambdas1, max_lambdas2);
         return 0.0;
     }
-    return ei_multi_max(max_mius1, miu_mean, miu_s2, max_lambdas2, lambda_s2, lambda_mean, y_best, n);
+    return ei_multi_max(max_mius1, miu_mean, miu_s2, max_lambdas1, lambda_s2, lambda_mean, y_best, n);
 }
 %}
 
 %inline %{
     double my_ei_multi_min(int max_mius1, double *miu_mean, int max_mius2, double *miu_s2, int max_lambdas1, double *lambda_s2, int max_lambdas2, double *lambda_mean, double y_best, int n){
-    int nn = ((max_mius1 + max_lambdas2) * (max_mius1 + max_lambdas2));
-    if (max_lambdas1 != ((max_mius1 + max_lambdas2) * (max_mius1 + max_lambdas2) )) {
-        PyErr_Format(PyExc_ValueError, "Arrays of lengths (%d,%d) given", max_lambdas2, nn);
+    if (max_mius1 != max_mius2) {
+        PyErr_Format(PyExc_ValueError, "Arrays of lengths (%d,%d) given", max_mius1, max_mius2);
         return 0.0;
     }
-    if (max_mius2 != 0) {
-        PyErr_Format(PyExc_ValueError, "Array max_mius2 should be empty");
+    if (max_lambdas1 != max_lambdas2) {
+        PyErr_Format(PyExc_ValueError, "Arrays of lengths (%d,%d) given", max_lambdas1, max_lambdas2);
         return 0.0;
     }
-    return ei_multi_min(max_mius1, miu_mean, miu_s2, max_lambdas2, lambda_s2, lambda_mean, y_best, n);
+    return ei_multi_min(max_mius1, miu_mean, miu_s2, max_lambdas1, lambda_s2, lambda_mean, y_best, n);
 }
 %}
