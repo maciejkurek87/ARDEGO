@@ -1485,13 +1485,13 @@ class P_ARDEGO_Trial(Trial):
         self.run_initialize()
         self.use_cost_model = False
         try:
+            logging.info("Cost model wont be used for prediction")
+            self.cost_model = DummyCostModel(self.configuration, self.controller, self.fitness)
+        except:
             logging.info("Cost model will be used for prediction")
             self.configuration.cost
             self.use_cost_model = True
             self.cost_model = ProperCostModel(self.configuration, self.controller, self.fitness)
-        except:
-            logging.info("Cost model wont be used for prediction")
-            self.cost_model = DummyCostModel(self.configuration, self.controller, self.fitness)
         
         self.state_dictionary['best'] = None
         self.state_dictionary['model_failed'] = False
