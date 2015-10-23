@@ -160,7 +160,6 @@ class Controller(object):
     ## visualizer methods
 
     def visualize(self, snapshot, render_function):
-        
         self.visualizer.add_job(render_function, snapshot)
 
     def kill_visualizer(self):

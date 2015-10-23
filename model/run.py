@@ -67,12 +67,7 @@ class Run(object):
     def run(self):
         now = strftime('%Y-%m-%d_%H-%M-%S')
         try:
-<<<<<<< HEAD
             self.results_folder_path = str(self.configuration.results_folder_path) + '/' + self.get_configuration_run_name() + "_" + self.fitness.name() 
-=======
-            
-            self.results_folder_path = str(self.configuration.results_folder_path) + '/' + str(now) + "_" + self.configuration.run_name
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         except AttributeError:
             try: 
                 self.results_folder_path = str(self.configuration.results_folder_path) + '/' + self.fitness.name() 
@@ -89,9 +84,9 @@ class Run(object):
         
         # Initialise trials
         for trial_no in range(0, self.get_no_of_trials()):
-            logging.info(self.results_folder_path)
-            trial = self.get_trial_type_constructor()(trial_no, self, self.fitness, self.configuration, self.controller, self.results_folder_path)
-            logging.info(trial_no)
+            trial = self.get_trial_type_constructor()(trial_no, self, self.fitness,
+                          self.configuration, self.controller,
+                          self.results_folder_path)
             if trial.initialise():
                 self.trials.append(trial)
             

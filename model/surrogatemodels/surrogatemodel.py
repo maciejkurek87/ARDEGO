@@ -1,6 +1,5 @@
 import logging
 
-<<<<<<< HEAD
 import sys
 if sys.version_info > (2, 6):
     from classifiers import Classifier, SupportVectorMachineClassifier
@@ -8,15 +7,10 @@ else:
     from classifiers import Classifier, SupportVectorMachineClassifier, RelevanceVectorMachineClassifier, RelevanceVectorMachineClassifier2
     
 from regressors import Regressor, GaussianProcessRegressor, GaussianProcessRegressor4
-=======
-from classifiers import Classifier, SupportVectorMachineClassifier
-from regressors import Regressor, GaussianProcessRegressor, GaussianProcessRegressor2, GaussianProcessRegressor3, KMeansGaussianProcessRegressor, DPGMMGaussianProcessRegressor, GaussianProcessRegressorRpy
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
 
 from utils import numpy_array_index
 from scipy.interpolate import griddata
 from scipy.stats import norm
-<<<<<<< HEAD
 from numpy import linspace, meshgrid, reshape, array, argmax, mgrid, ones, arange, place, maximum, minimum, zeros, concatenate, array_split, argmin, vstack , any
 import itertools 
 import pdb
@@ -32,11 +26,6 @@ import os
 import math
 from operator import itemgetter
 from ei_soft import ei_multi_max, ei_multi_min
-=======
-from numpy import linspace, meshgrid, reshape, array, argmax, mgrid, ones, arange
-import itertools 
-import pdb
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
 
 class SurrogateModel(object):
 
@@ -115,11 +104,7 @@ class DummySurrogateModel(SurrogateModel):
         super(DummySurrogateModel, self).__init__(configuration,
                                                    controller,
                                                    fitness)
-<<<<<<< HEAD
         self.regressor = Regressor(controller, configuration, fitness)
-=======
-        self.regressor = Regressor(controller, configuration)
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         self.classifier = Classifier()
 
     def get_regressor(self):
@@ -173,25 +158,19 @@ class ProperSurrogateModel(SurrogateModel):
                 self.max_uncertainty = self.max_ei
             elif self.configuration.sample_on == "s":
                 self.max_uncertainty = self.max_s2
-<<<<<<< HEAD
             elif self.configuration.sample_on == "m":
                 self.max_uncertainty = self.max_m
-=======
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         except:
             if self.max_uncertainty:
                 pass
             else:
                 logging.debug("Sampling scheme wasnt specified, using Expected Improvment")
                 self.max_uncertainty = self.max_ei
-<<<<<<< HEAD
         self.best = None
         self.best_fitness = None
         self.max_mem = 4 ## in GB
         self.fitness=fitness
         ### max cores
-=======
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         
     def get_regressor(self):
         return self.regressor
@@ -200,11 +179,7 @@ class ProperSurrogateModel(SurrogateModel):
         return self.classifier
         
     def get_copy(self):
-<<<<<<< HEAD
         model_copy = ProperSurrogateModel(self.configuration, self.controller, self.fitness)
-=======
-        model_copy = ProperSurrogateModel(self.configuration, self.controller)
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         model_copy.set_state_dictionary(self.get_state_dictionary())
         return model_copy
             
@@ -230,23 +205,9 @@ class ProperSurrogateModel(SurrogateModel):
         configuration = self.configuration
         fitness = self.fitness
         if self.configuration.regressor == 'GaussianProcess':
-<<<<<<< HEAD
             return GaussianProcessRegressor(controller, configuration, fitness)      
         elif self.configuration.regressor == 'GaussianProcess4':
             return GaussianProcessRegressor4(controller, configuration, fitness)     
-=======
-            return GaussianProcessRegressor(controller, configuration)
-        elif self.configuration.regressor == 'GaussianProcess2':
-            return GaussianProcessRegressor2(controller, configuration)          
-        elif self.configuration.regressor == 'GaussianProcess3':
-            return GaussianProcessRegressor3(controller, configuration)        
-        elif self.configuration.regressor == 'KMeansGaussianProcessRegressor':
-            return KMeansGaussianProcessRegressor(controller, configuration)        
-        elif self.configuration.regressor == 'DPGMMGaussianProcessRegressor':
-            return DPGMMGaussianProcessRegressor(controller, configuration)
-        elif self.configuration.regressor == 'R':
-            return GaussianProcessRegressorRpy(controller, configuration)
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         else:
             raise Exception('Regressor type ' + str(configuration.regressor) + '  not found')
         
@@ -259,7 +220,6 @@ class ProperSurrogateModel(SurrogateModel):
             except:
                 trans_part = part
             self.regressor.add_training_instance(trans_part, fitness)
-<<<<<<< HEAD
             if (code == 0):
                 logging.info("New possible real best")
                 if self.best_fitness is None or (fitness > self.best_fitness and (self.configuration.goal == "max")):## maximization
@@ -273,8 +233,6 @@ class ProperSurrogateModel(SurrogateModel):
                     
     def get_best(self):
         return self.best, self.best_fitness
-=======
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         
     def contains_training_instance(self, part):
         try:
@@ -300,123 +258,6 @@ class ProperSurrogateModel(SurrogateModel):
         
         grid = False
         if grid:
-<<<<<<< HEAD
-=======
-            if hypercube:
-                result = mgrid[[slice(h_min, h_max, npts*1.0j) for h_max, h_min , n in zip(hypercube[0],hypercube[1], n_bins)]]
-                z = result.reshape(D,-1).T
-            else:
-                bounds = [(d["min"],d["max"]) for d in designSpace]
-                result = mgrid[[slice(row[0], row[1], npts*1.0j) for row, n in zip(bounds, n_bins)]]
-                z = result.reshape(D,-1).T
-                '''
-                x,y,v = mgrid[designSpace[0]["min"]:designSpace[0]["max"]:(int(designSpace[0]["max"]-designSpace[0]["min"])+1)*1.0j,designSpace[1]["min"]:designSpace[1]["max"]:(int(designSpace[1]["max"]-designSpace[1]["min"])+1)*1.0j , designSpace[2]["min"]:designSpace[2]["max"]:(int(designSpace[2]["max"]-designSpace[2]["min"])+1)*1.0j]
-                x=reshape(x,-1)
-                y=reshape(y,-1)
-                v=reshape(v,-1)
-                z = array([[a,b,c] for (a,b,c) in zip(x,y,v)])
-                '''
-            try:             
-                zClass, MU, S2, EI, P = self.predict(z)
-                filteredEI=[]
-                filteredZ=[]
-                for i,ei in enumerate(EI):
-                    if zClass[i]==0:
-                        filteredEI.append(ei)
-                        filteredZ.append(z[i])
-                EI = array(filteredEI) 
-                return filteredZ[argmax(EI)]
-            except Exception,e:
-                logging.error("Finding max S2 failed: " + str(e))
-                return None
-        else: ## more memory efficient yet slower
-            maxEI = None
-            maxEIcord = None
-            maxEI2 = None
-            maxEIcord2 = None
-            space_def = []
-            if hypercube:
-                for counter, d in enumerate(designSpace):
-                    if d["type"] == "discrete":
-                        space_def.append(arange(hypercube[1][counter],hypercube[0][counter]+d["step"],d["step"])) ## arrange works up to...
-                    else:
-                        space_def.append(arange(hypercube[1][counter],hypercube[0][counter],((hypercube[0][counter]-hypercube[1][counter])/100.0)))
-            else:
-                for d in designSpace:
-                    if d["type"] == "discrete":
-                        space_def.append(arange(d["min"],d["max"]+d["step"],d["step"])) ## arrange works up to...
-                    else:
-                        space_def.append(arange(d["min"],d["max"],((d["max"]-d["min"])/100.0)))
-            for z in itertools.product(*space_def):
-                if not self.contains_training_instance(array(z)):
-                    
-                    #pdb.set_trace()
-                    zClass, MU, S2, EI, P = self.predict(array([z]))
-                    #logging.info(str(z) + " " + str(zClass[0]) + " " + str(EI[0]))
-                    if maxEI < EI[0] and zClass[0]==0: ## no need for None checking
-                        maxEI = EI[0]
-                        maxEIcord = z
-                    if maxEI2 < EI[0]: ## no need for None checking
-                        maxEI2 = EI[0]
-                        maxEIcord2 = z
-            logging.info("Maximum Expected Improvment is at:" + str(maxEIcord))
-            logging.info("Maximum Expected Improvment without classifier is at:" + str(maxEIcord2))
-            return maxEIcord2
-            
-    def max_ei_cost(self, designSpace, hypercube=None, npts=10, cost_func = None):
-        D = len(designSpace)
-        n_bins = npts*ones(D)
-        
-        grid = False
-        if grid:
-            if hypercube:
-                result = mgrid[[slice(h_min, h_max, npts*1.0j) for h_max, h_min , n in zip(hypercube[0],hypercube[1], n_bins)]]
-                z = result.reshape(D,-1).T
-            else:
-                bounds = [(d["min"],d["max"]) for d in designSpace]
-                result = mgrid[[slice(row[0], row[1], npts*1.0j) for row, n in zip(bounds, n_bins)]]
-                z = result.reshape(D,-1).T
-                '''
-                x,y,v = mgrid[designSpace[0]["min"]:designSpace[0]["max"]:(int(designSpace[0]["max"]-designSpace[0]["min"])+1)*1.0j,designSpace[1]["min"]:designSpace[1]["max"]:(int(designSpace[1]["max"]-designSpace[1]["min"])+1)*1.0j , designSpace[2]["min"]:designSpace[2]["max"]:(int(designSpace[2]["max"]-designSpace[2]["min"])+1)*1.0j]
-                x=reshape(x,-1)
-                y=reshape(y,-1)
-                v=reshape(v,-1)
-                z = array([[a,b,c] for (a,b,c) in zip(x,y,v)])
-                '''
-            try:             
-                zClass, MU, S2, EI, P = self.predict(z)
-                filteredEI=[]
-                filteredZ=[]
-                for i,ei in enumerate(EI):
-                    if zClass[i]==0:
-                        filteredEI.append(ei)
-                        filteredZ.append(z[i])
-                EI = array(filteredEI) 
-                return filteredZ[argmax(EI)]
-            except Exception,e:
-                logging.error("Finding max S2 failed: " + str(e))
-                return None
-        else: ## more memory efficient yet slower
-            maxEI = None
-            maxEIcord = None
-            space_def = []
-            for d in designSpace:
-                if d["type"] == "discrete":
-                    space_def.append(arange(d["min"],d["max"],d["step"]))
-                else:
-                    space_def.append(arange(d["min"],d["max"],((d["max"]-d["min"])/100.0)))
-            for z in itertools.product(*space_def):
-                zClass, MU, S2, EI, P = self.predict([z])
-                EI_over_cost = EI / cost_func(z)
-                if maxEI < EI: ## no need for None checking
-                    maxEI = EI
-                    maxEIcord = z
-            return z
-            
-    def max_s2(self, designSpace, hypercube=None, npts=10):
-        if len(designSpace)==2:
-            # make up data.
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
             if hypercube:
                 result = mgrid[[slice(h_min, h_max, npts*1.0j) for h_max, h_min , n in zip(hypercube[0],hypercube[1], n_bins)]]
                 z = result.reshape(D,-1).T
@@ -537,7 +378,6 @@ class ProperSurrogateModel(SurrogateModel):
             
     def max_s2(self, designSpace, hypercube=None, npts=10):
         try:             
-<<<<<<< HEAD
             maxS2 = None
             maxS2cord = None
             space_def = []
@@ -570,20 +410,6 @@ class ProperSurrogateModel(SurrogateModel):
                         maxS2 = S2[0]
                         maxS2cord = z
             return maxS2cord
-=======
-            zClass, MU, S2 = self.predict(z)
-            #logging.info(str(MU))
-            #logging.info(str(zClass))
-            #logging.info(str(S2))
-            filteredS2=[]
-            filteredZ=[]
-            for i,s2 in enumerate(S2):
-                if zClass[i]==0:
-                    filteredS2.append(s2)
-                    filteredZ.append(z[i])
-            S2 = array(filteredS2) 
-            return filteredZ[argmax(S2)]
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         except Exception,e:
             logging.error("Finding max S2 failed: " + str(e))
             return None
@@ -724,7 +550,6 @@ class LocalSurrogateModel(ProperSurrogateModel):
         self.local_regressor.set_state_dictionary(dict["local_regressor_state_dict"])
         self.classifier.set_state_dictionary(dict["classifier_state_dicts"])
 
-<<<<<<< HEAD
 class BayesClassSurrogateModel(SurrogateModel):
 
     def __init__(self, configuration, controller, fitness):
@@ -2000,6 +1825,3 @@ class BayesClassSurrogateModel2(BayesClassSurrogateModel):
         # self.classifier1.set_state_dictionary(dict["classifier1_state_dicts"])
         # self.classifier2.set_state_dictionary(dict["classifier2_state_dicts"])
         # self.propa_classifier = dict["propa_classifier"]
-=======
-    
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c

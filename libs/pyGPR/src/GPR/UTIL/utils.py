@@ -41,30 +41,19 @@ def plotter(xs,ym,ys2,x,y,axisvals=None,file=None):
     xss  = np.reshape(xs,(xs.shape[0],))
     ymm  = np.reshape(ym,(ym.shape[0],))
     ys22 = np.reshape(ys2,(ys2.shape[0],))
-<<<<<<< HEAD
     plt.plot(x, y, 'kx', linewidth = 3.0, markersize = 10.0 , label="Evaluations")
     plt.plot(xs, ym, 'k-', linewidth = 3.0, markersize = 10.0 , label="$\hat{f}(x)$")
     plt.plot([], [], 'k-', linewidth = 3.0, markersize = 10.0 , alpha=0.5 ,label="$\sigma(x)$")
-=======
-    plt.plot(xs, ym, 'k-', x, y, 'kx', linewidth = 3.0, markersize = 10.0)
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
     plt.fill_between(xss,ymm + 2.*np.sqrt(ys22), ymm - 2.*np.sqrt(ys22), facecolor="gray",linewidths=0.0, alpha=0.5)
     plt.grid()
     if axisvals:
         plt.axis(axisvals)
-<<<<<<< HEAD
     plt.legend( loc='upper left', numpoints = 1, prop={'size':24})
     plt.tick_params(which='major', labelsize=23, axis='both', )
     plt.title('Non-smooth', fontsize = 25)
     plt.xlabel('Parameter Space', fontsize = 25)
     plt.ylabel('Design Quality', fontsize = 25)
     plt.subplots_adjust(left=0.15, right=0.9, top=0.9, bottom=0.15)
-=======
-    plt.title('Non-Stationary', fontsize = 27)
-    plt.xlabel('Parameter Space', fontsize = 27)
-    plt.ylabel('Design Quality', fontsize = 27)
-
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
     if file and isinstance(file,str):
         plt.savefig(file)
     plt.show()

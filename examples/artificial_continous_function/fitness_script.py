@@ -3,7 +3,6 @@ from deap import benchmarks
 from numpy import array
 
 dimensions = 4  # Dimensionality of solution space
-<<<<<<< HEAD
 # Example definition of the design space
 designSpace = []
 for d in xrange(dimensions):
@@ -11,9 +10,6 @@ for d in xrange(dimensions):
     #designSpace.append({'min': -2, 'max': 2, 'step': 0.5,
     #                    'type': 'continuous'})
 
-=======
-objectives = 1
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
 # Min and max fitness values
 
 minVal = 0.0
@@ -29,15 +25,6 @@ rotate = False
 # Defines the problem to be maximization or minimization
 def is_better(a, b):
     return a < b
-
-
-# Defines the problem to be maximization or minimization
-def dominate(a, b):
-    bo = bool(1)
-    for (ai,bi) in zip(a,b):
-    	if ai>bi: # < if maximization, > if minimization 
-    		bo = bool(0)
-    return bo
 
 worst_value = maxVal
 

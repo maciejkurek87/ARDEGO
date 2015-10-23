@@ -4,11 +4,7 @@ from numpy import linspace, meshgrid, reshape, array, argmax, delete
 
 from utils import numpy_array_index
 from copy import deepcopy, copy
-<<<<<<< HEAD
 from regressors import Regressor, GaussianProcessRegressor4
-=======
-from regressors import Regressor, GaussianProcessRegressor, GaussianProcessRegressor3
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
 
 class CostModel(object):
 
@@ -101,11 +97,7 @@ class DummyCostModel(CostModel):
         
     def get_copy(self):
         model = DummyCostModel(self.configuration, self.controller, self.fitness)
-<<<<<<< HEAD
         model.set_state_dictionary(self.get_state_dictionary())
-=======
-        model.set_state_dictionary(self.cost_model.get_state_dictionary())
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         return model
         
 class ProperCostModel(CostModel):
@@ -116,13 +108,8 @@ class ProperCostModel(CostModel):
         #self.configuration = deepcopy(self.configuration)
         #self.configuration.corr = "isotropic"
         #self.configuration.random_start = 10
-<<<<<<< HEAD
         self.soft_regressor = GaussianProcessRegressor4(controller, configuration, fitness)
         self.hard_regressor = GaussianProcessRegressor4(controller, configuration, fitness)
-=======
-        self.soft_regressor = GaussianProcessRegressor3(controller, configuration)
-        self.hard_regressor = GaussianProcessRegressor3(controller, configuration)
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
                 
     def no_software_param(self):
         software_axis = [i for i, dimension in enumerate(self.fitness.designSpace) if dimension["set"] == "s"]
@@ -137,7 +124,6 @@ class ProperCostModel(CostModel):
         hard = array([0.0])
         soft = array([0.0])
         if not self.bitstream_was_generated(part):
-<<<<<<< HEAD
             hard, S2, EI, P = self.hard_regressor.predict(array( ))
         if not self.no_software_param():
             soft, S2, EI, P = self.soft_regressor.predict(array(part))
@@ -153,27 +139,15 @@ class ProperCostModel(CostModel):
                 hard = mean(self.hard_regressor.get_state_dictionary()['training_fitness'])
             except: 
                 hard = array([0.0])
-=======
-            hard, S2, EI, P = self.hard_regressor.predict(array([part]))
-        if not self.no_software_param():
-            soft, S2, EI, P = self.soft_regressor.predict(array([part]))
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         ## prediction has to be corrected for software models
         #logging.debug(str(hard + soft))
         return hard + soft
         
     def predict_raw(self, part):
-<<<<<<< HEAD
         hard, S2, EI, P = self.hard_regressor.predict(part)
         soft = 0.0
         if not self.no_software_param():
             soft, S2, EI, P = self.soft_regressor.predict(part)
-=======
-        hard, S2, EI, P = self.hard_regressor.predict(array([part]))
-        soft = 0.0
-        if not self.no_software_param():
-            soft, S2, EI, P = self.soft_regressor.predict(array([part]))
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         ## prediction has to be corrected for software models
         #logging.debug(str(hard + soft))
         return hard + soft
@@ -194,10 +168,7 @@ class ProperCostModel(CostModel):
         return self.was_trained
         
     def add_training_instance(self, part, cost):
-<<<<<<< HEAD
         logging.info(cost)
-=======
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         if self.bitstream_was_generated(part):
             self.soft_regressor.add_training_instance(part, cost)
         else:
@@ -205,17 +176,12 @@ class ProperCostModel(CostModel):
                 software_c_prediction = self.soft_regressor.predict(part)[0][0] ## we ignore s2
             except:
                 logging.info("Software has not been evaluted yet, using assumption that hardware cost >> software cost")
-<<<<<<< HEAD
                 software_c_prediction = array([0.0])
             try:
                 self.hard_regressor.add_training_instance(part, cost - software_c_prediction)
             except:
                 import pdb
                 pdb.set_trace()
-=======
-                software_c_prediction = 0.0
-            self.hard_regressor.add_training_instance(part, cost - software_c_prediction)
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
                 
                 
     def contains_training_instance(self, part):

@@ -3,12 +3,8 @@ import operator
 
 from numpy import *
 from numpy.random import uniform, seed,rand
-<<<<<<< HEAD
 from scipy.stats import norm
  
-=======
-
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
 enableTracebacks = True
 from numpy import * 
 initMin = -1
@@ -43,25 +39,16 @@ maxVal = 20.0
 worst_value = 20.0
 
 designSpace = []
-<<<<<<< HEAD
 ratios = True
 if ratios:
     designSpace.append({"min":1.0,"max":10.0,"step":1.0,"type":"discrete", "set":"h"}) #alpha
     designSpace.append({"min":1.0,"max":10.0,"step":1.0,"type":"discrete", "set":"h"}) #beta
 width = True
-=======
-ratios = False
-if ratios:
-    designSpace.append({"min":1.0,"max":10.0,"step":1.0,"type":"discrete", "set":"h"}) #alpha
-    designSpace.append({"min":1.0,"max":10.0,"step":1.0,"type":"discrete", "set":"h"}) #beta
-width = False
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
 if width:    
     designSpace.append({"min":4.0,"max":24.0,"step":1.0,"type":"discrete", "set":"h"}) #B
     designSpace.append({"min":1.0,"max":3.0,"step":1.0,"type":"discrete", "set":"h"}) #T
 P = True
 if P:
-<<<<<<< HEAD
     if Maia:
         designSpace.append({"min":1.0,"max":20.0,"step":1.0,"type":"discrete", "set":"h"}) #Pknl
         designSpace.append({"min":1.0,"max":20.0,"step":1.0,"type":"discrete", "set":"h"}) #Ptl
@@ -74,12 +61,6 @@ def name():
     return "fF_rtm"
     
 #exclude_from_regression = [3]
-=======
-    designSpace.append({"min":1.0,"max":10.0,"step":1.0,"type":"discrete", "set":"h"}) #Pknl
-    designSpace.append({"min":1.0,"max":10.0,"step":1.0,"type":"discrete", "set":"h"}) #Ptl
-    designSpace.append({"min":1.0,"max":32.0,"step":1.0,"type":"discrete", "set":"h"}) #Pdp
-
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
 
 maxvalue = worst_value
 error_labels = {0:'Valid',1:'Overmap',2:'Inaccuracy', 3:'Memory'}
@@ -87,7 +68,6 @@ error_labels = {0:'Valid',1:'Overmap',2:'Inaccuracy', 3:'Memory'}
 #[  6.,1.,5,1,2., 2.,32.04800588] around this point
 #(4.0, 5.0, 4.0, 0.050000000000000003, 9.0, 2.0, 31.0) 0.0559685819892
 def termCond(best):
-<<<<<<< HEAD
     if Maia:
         return best < 0.029
     else:
@@ -99,11 +79,6 @@ always_valid = [1.0, 1.0, 4.0, 1.0, 1.0, 1.0, 1.0]
 
 #always_valid = [1.0, 1.0, 4.0, 1.0]
 #optimial_x = [1.0, 1.0, 4.0, 3.0]
-=======
-    return best < 0.1
-    
-optimial_x = [1.0, 1.0, 4.0, 3.0, 1.0, 10.0, 6.0]
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
 '''
 n1*n2*n3:
 128*128*128
@@ -136,7 +111,6 @@ Ot*Ob= 1.16
 Ot*Ob= 1.20
 '''
 
-<<<<<<< HEAD
 def transferValid(part):
     if not Maia:
         if part[4] < 11. and part[5] < 11.:
@@ -148,9 +122,6 @@ def meetsResources(part):
     return fitnessFunc(part,{})[0][1] == 0.0
         
 def fitnessFunc(particle, state,extraa=0):
-=======
-def fitnessFunc(particle, state):
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
 
     # Dimensions dynamically rescalled
     ############Dimensions
@@ -205,7 +176,6 @@ def fitnessFunc(particle, state):
     psi = 100000000.0*8 # 1 GB/s
     gamma = 80.0
 
-<<<<<<< HEAD
     ## Max3
     if not Maia:
         Ad = 2016
@@ -218,12 +188,6 @@ def fitnessFunc(particle, state):
         Af  = 1050000
         Al  = 695000
         Ab = 65.0 * 100000000*8 ##  
-=======
-    Ad = 2016
-    Af  = 595200
-    Al  = 297600
-    Ab = 37.5 * 100000000*8 ## 
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
      
     If = Af * 0.1
     Il = Al * 0.1
@@ -269,12 +233,8 @@ def fitnessFunc(particle, state):
     ## mem bandwith exceeded
     #if BWm >= (Wdp*Bw*Pdp)*Pknl*fknl :
     #    return ((array([maxvalue]), array([4]),array([0]), cost) , state)
-<<<<<<< HEAD
     if Maia:
         executionTime = executionTime + norm.rvs(loc=0, scale=0.0005) #add noise
-=======
-    
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
     ### accuracy error
     error = 0.0
     if error > maxError:
@@ -289,14 +249,10 @@ def fitnessFunc(particle, state):
     
 ##add state saving, we use p and thread id 
 def getCost(Bs, Ds, Ls, Fs , bit_stream_repo):
-<<<<<<< HEAD
     if (Ds >= 1) or (Ls >= 1) or (Fs >= 1) or (Bs >=1):
         return array([1200+1000*random.random()]), {}
     else:
         return array([4000 + (max(Bs,Ds,Ls,Fs) * 30000)]), {}
-=======
-    return array([4000 + (max(Bs,Ds,Ls,Fs) * 10000)]), {}
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
     
 if __name__ == '__main__':
 
@@ -312,7 +268,6 @@ if __name__ == '__main__':
     for d in designSpace:
         space_def.append(arange(d["min"],d["max"]+1.0,d["step"]))
     print space_def
-<<<<<<< HEAD
     counter2 = 0
     for z in itertools.product(*space_def):
         counter = counter + 1
@@ -320,14 +275,6 @@ if __name__ == '__main__':
         code = fitnessFunc(z,None)[0][1][0]
         if code == 0:
             counter2 = counter2+ 1
-=======
-    
-    for z in itertools.product(*space_def):
-        counter = counter + 1
-        EI = fitnessFunc(z,None)[0][0][0]
-        print EI 
-        print z
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
         if counter % 10000 == 0:
             print str(counter) + " " +  str(maxEIcord) + " " +  str(maxEI)
         
@@ -335,17 +282,11 @@ if __name__ == '__main__':
             maxEI = EI
             maxEIcord = z
     ### 
-<<<<<<< HEAD
     print counter2
     print counter
     print "DONE!"
     print maxEIcord
     print maxEI
     #print fitnessFunc((1.0, 2.0, 4.0, 32.0),None)[0][0][0]
-=======
-    print "DONE!"
-    print maxEIcord
-    print maxEI
->>>>>>> 3af52321da6a5bfb3b3cc04df714eb04250e157c
     
     
