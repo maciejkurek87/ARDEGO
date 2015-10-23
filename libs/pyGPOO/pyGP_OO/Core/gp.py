@@ -161,57 +161,7 @@ def predict(inffunc, meanfunc, covfunc, likfunc, x, y, xs, ys=None):
     else:
         return [ymu, ys2, fmu, fs2, lp]   
 
-def getKMatrix(inffunc, meanfunc, covfunc, likfunc, x, y, xs, ys=None):
-    '''
-    prediction according to given inputs
-    return [ymu, ys2, fmu, fs2, lp] 
 
-    If given ys, lp will be calculated.
-    Otherwise,   lp is None.
-
-    If you don't know posterior yet, you can pass y istead of post.
-    '''
-    if not meanfunc:
-        meanfunc = mean.meanZero()  
-    if not covfunc:
-        raise Exception('Covariance function cannot be empty')
-    if not likfunc:
-        likfunc = lik.likGauss([0.1])  
-    if not inffunc:
-        inffunc = inf.infExact()
-    # if covFTIC then infFITC
-    
-
-    post  = analyze(inffunc, meanfunc, covfunc, likfunc, x, y, der=False)[1]
-    alpha = post.alpha
-    L     = post.L
-    sW    = post.sW
-
-    #if issparse(alpha)                  # handle things for sparse representations
-    #    nz = alpha != 0                 # determine nonzero indices
-    #    if issparse(L), L = full(L(nz,nz)); end      # convert L and sW if necessary
-    #    if issparse(sW), sW = full(sW(nz)); end
-    #else:
-
-    nz = range(len(alpha[:,0]))      # non-sparse representation 
-    if L == []:                      # in case L is not provided, we compute it
-        K = covfunc.proceed(x[nz,:])
-        L = np.linalg.cholesky( (np.eye(nz) + np.dot(sW,sW.T)*K).T )
-    Ltril     = np.all( np.tril(L,-1) == 0 ) # is L an upper triangular matrix?
-    ns        = xs.shape[0]                  # number of data points
-    nperbatch = 1000                         # number of data points per mini batch
-    nact      = 0                            # number of already processed test data points
-    ymu = np.zeros((ns,1))
-    ys2 = np.zeros((ns,1))
-    fmu = np.zeros((ns,1))
-    fs2 = np.zeros((ns,1))
-    lp  = np.zeros((ns,1))
-    while nact<ns-1:                               # process minibatches of test cases to save memory
-        id  = range(nact,min(nact+nperbatch,ns))   # data points to process
-        kss = covfunc.proceed(xs[id,:], 'diag')    # self-variances
-        Ks  = covfunc.proceed(x[nz,:], xs[id,:])   # cross-covariances
-        
-        
 def analyze(inffunc, meanfunc, covfunc, likfunc, x, y, der=False):
     '''
     Middle Step, or maybe useful for experts to analyze sth.

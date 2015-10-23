@@ -9,13 +9,15 @@ import os
 from matplotlib.font_manager import FontProperties    
 from sklearn import preprocessing
 import csv
+import matplotlib.ticker
+import string
 from plotSpecification import * 
 import matplotlib as mpl
 from scipy import stats
 save = True
-fontsize = 26
-smallfontsize = 22
-annotatefontsize = 22
+fontsize =26
+smallfontsize = 26
+annotatefontsize = 26
 
 rc('font',**{'family':'sans-serif','sans-serif':['Arial']})
 debug = False
@@ -26,15 +28,24 @@ def splitter(folder):
     folder_tags = dict(tuples)
     return folder_tags
 
-def aggregation_engine(results_paths, filterDict, off_keys=[], add_list=[]):
+def aggregation_engine(results_paths, filterDict, off_keys=[], add_list=[], extra_tag=[]):
     
     filtered_folders = []
     legend = []
     for j, result_path in enumerate(results_paths):
         folders = os.listdir(result_path)
-        for folder in sorted(folders):
+        folders2 = []
+        for folder in sorted(folders, reverse=True):
+            new_folder = string.replace(folder, "16", "z6")
+            new_folder = string.replace(new_folder, "MLO", "ZLO")
+            folders2.append(new_folder)
+            
+        for folder in sorted(folders2, reverse=True):
+            folder = string.replace(folder, "z6", "16")
+            folder = string.replace(folder, "ZLO", "MLO")
             #print "folder: " + str(folder)
-            folder_tags = splitter(folder)
+            folder_tags = splitter(folder + extra_tag[j])
+            print folder_tags
             # filter
             is_in = True
             for k,v in filterDict.iteritems():
@@ -66,20 +77,19 @@ plot_name = "kurwa"
 ncol = 1
 off_keys = ["fF"]
 #dir = "/data/Dropbox/pso_results/"
-dir = "/home/maciej/pso_results/"
+dir = "/media/sf_ubuntu_backup/pso_results/"
 table_data = {}
 table_data2 = {}
 table_data2_time = 150
 table_data2_time2 = 300
-
+extra_tag = []
 ###############
 #### QUAD #####
 ############
-error = "0.1"
+error = "0.001"
 ###
 error2 = error[2:]
 des = "quad"
-ncol = 1
 if True:
     #title = "Energy Efficiency"
     on = "False"
@@ -91,13 +101,20 @@ else:
 filterDict = {"fF" : "ansonE" + error + "Th" + on}
 # title = title + ", Quadrature Apllication Optimization, Error " + error
 
-# results_paths = [dir + "quad/standard", dir + "quad/hc"]
-# ncol = 1
-# plot_name = "kernels_stdv_no_" + error2 + "_" + des + "_" + tit
-# filterDict["stddv"] = ["0.01", "0.05", "0.1"]
-# tagy = "corr"
-# tagx = "stddv"
-
+results_paths = [dir + "quad/standard", dir + "quad/m_s", "/media/sf_ubuntu_backup/hc_bugfixed_quad/hc_bigFixed_quad_False_True"]
+ncol = 2
+'''
+plot_name = "kernels_stdv_no_" + error2 + "_" + des + "_" + tit
+#filterDict["corr"] = ["anisotropic"]
+filterDict["parall"] = ["1"]
+filterDict["sampleon"] = ["no"]
+filterDict["stddv"] = ["0.01","0.05","0.1"]
+off_keys.append("sampleon")
+off_keys.append("parall")
+#off_keys.append("corr")
+tagy = "corr"
+tagx = "stddv"
+'''
 # results_paths = [dir + "quad/standard", dir + "quad/m_s"]
 # plot_name = "quad_kernels_ms_no_" + error2 + "_" + des + "_" + tit
 # filterDict["corr"] = ["anisotropic"]
@@ -137,6 +154,11 @@ filterDict = {"fF" : "ansonE" + error + "Th" + on}
 # plot_name = "pq_standard"
 # ncol = 1
 # filterDict["stddv"] = ["0.01", "0.05", "0.1"]
+# filterDict["sampleon"] = ["no"]
+# filterDict["parall"] = ["1"]
+# off_keys.append("parall")
+
+# off_keys.append("sampleon")
 # tagy = "corr"
 # tagx = "stddv"
 
@@ -175,20 +197,54 @@ filterDict = {"fF" : "ansonE" + error + "Th" + on}
 # plot_name = "pq_m_s"
 #results_paths = ["/data/tmp/mk306/ardego3_quad_software_latin_lambdaLimit_True_50000"]
 
-
 #############
 #### ARDEGO QUAD #####
 #############
 #dir2 = "/data/data/mk306/"
-#dir3 = "/data/Dropbox/hc_rtm/"
-dir2 = "/home/maciej/ardego/"
+# dir3 = "/media/sf_ubuntu_backup/hc_quad_False_False/"
+dir2 = "/media/sf_ubuntu_backup/ardego/"
 
-# results_paths = [dir + "quad/hc", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000_False", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000_False_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000_True_False"]
-# plot_name = "ardego" + error2 + "_" + des + "_" + tit
+#results_paths = ["/media/sf_ubuntu_backup/hc_bugfixed_quad/hc_bigFixed_quad_False_True", dir + "quad/m_s", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000_False", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000_False_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000_True_False"]
+#results_paths = ["/media/sf_ubuntu_backup/new_ardego/ardego_quad_software_latin_lambdaLimit_False_5000_True_True_False_True", dir + "quad/m_s", "/media/sf_ubuntu_backup/hc_bugfixed_quad/hc_bigFixed_quad_False_True"]
+#results_paths = ["/media/sf_ubuntu_backup/hc_bugfixed_quad/hc_bigFixed_quad_False_True", dir + "quad/m_s", dir2 + "ardego_quad_software_latin_lambdaLimit_False_5000_True_False",dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000_True_False",dir2 + "ardego_quad_software_latin_lambdaLimit_False_500000_True_False"]#, dir + "quad/hc", dir + "quad/m_s"]
+
+#results_paths = ["/media/sf_ubuntu_backup/hc_bugfixed_quad/hc_bigFixed_quad_False_True", dir + "quad/m_s", dir2 + "ardego_quad_software_latin_lambdaLimit_False_5_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_500_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_5000_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_500000_True_True"]#, dir3 + "tT_Hill\ Climbing_fF_rtm", dir + "quad/m_s"]
+
+#results_paths = ["/media/sf_ubuntu_backup/hc_bugfixed_quad/hc_bigFixed_quad_False_True", dir + "quad/m_s", dir2 + "ardego_quad_software_latin_lambdaLimit_False_5_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_500_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_5000_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_500000_True_True"]#, dir3 + "tT_Hill\ Climbing_fF_rtm", dir + "quad/m_s"]
+
+
+
+#results_paths = ["/media/sf_ubuntu_backup/ardego_reuse_quad_software_latin_lambdaLimit_False_5000_True_True_True_False", "/media/sf_ubuntu_backup/ardego_maia_quad_software_latin_lambdaLimit_False_5000_True_True_True_False"]
+#extra_tag = ["_extra_knowledge", ""]
+
+extra_tag=["_extra_know",""]
+results_paths = ["/media/sf_ubuntu_backup/ardego_maia_F5_software_latin_lambdaLimit_False_5000_True_True_True_False"]
+results_paths = ["/media/sf_ubuntu_backup/ardego_quad_maia_knowledge_software_latin_lambdaLimit_False_5000_True_True_True_False"]
+
+results_paths = ["/media/sf_ubuntu_backup/ardego_quad_maia_accuracyadded_knowledge_software_latin_lambdaLimit_False_5000_True_True_True_False","/media/sf_ubuntu_backup/ardego_maia_F5_software_latin_lambdaLimit_False_5000_True_True_True_False"]
+
+
+
+results_paths = ["/media/sf_ubuntu_backup/ardego_quad_maia_8_14_fit_added_knowledge_software_latin_lambdaLimit_False_5000_True_True_True_False","/media/sf_ubuntu_backup/ardego_quad_maia_8_14_f3_software_latin_lambdaLimit_False_5000_True_True_True_False"]
+
+results_paths = ["/media/sf_ubuntu_backup/quad/ardego_quad_software_latin_lambdaLimit_False_50000_True_False","/media/sf_ubuntu_backup/pso_results/quad/m_s","/media/sf_ubuntu_backup/hc_bugfixed_quad/hc_bigFixed_quad_False_True"]
+
+filterDict["corr"] = ["anisotropic"]
+filterDict["stddv"] = ["0.01"]
+filterDict["sampleon"] = ["m"]
+filterDict["nsims"] = ["50000","50"]
+filterDict["parall"] = ["1","2","4","6","8","16"]
+off_keys.append("nsims")
+off_keys.append("corr")
+off_keys.append("stddv")
+off_keys.append("sampleon")
+plot_name = "ardego" + error2 + "_" + des + "_" + tit
+extra_tag = ["","", ""]
+
 # add_list = ["Z","A", "B", "C", "D"]
 
-plot_name = "ardego" + error2 + "_" + des + "_" + tit
-#results_paths = [dir2 + "ardego_quad_software_latin_lambdaLimit_False_500000_True_False"]#, dir2 + "ardego2_quad_software_latin_lambdaLimit_False_500_True_True", dir2 + "ardego2_quad_software_latin_lambdaLimit_False_5000_True_True"]
+#plot_name = "ardego" + error2 + "_" + des + "_" + tit
+#results_paths = [dir2 + "ardego_quad_software_latin_lambdaLimit_False_500000_True_False",dir3]#, dir2 + "ardego2_quad_software_latin_lambdaLimit_False_500_True_True", dir2 + "ardego2_quad_software_latin_lambdaLimit_False_5000_True_True"]
 #results_paths = [dir2 + "ardego_quad_software_latin_lambdaLimit_False_5000_True_False",dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000_True_False",dir2 + "ardego_quad_software_latin_lambdaLimit_False_500000_True_False"]#, dir + "quad/hc", dir + "quad/m_s"]
 #results_paths = [dir2 + "ardego_quad_software_latin_lambdaLimit_False_5_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_500_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_5000_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000_True_True", dir2 + "ardego_quad_software_latin_lambdaLimit_False_500000_True_True"]#, dir3 + "tT_Hill\ Climbing_fF_rtm", dir + "quad/m_s"]
 
@@ -202,8 +258,8 @@ plot_name = "ardego" + error2 + "_" + des + "_" + tit
 #filterDict["stddv"] = ["0.01"]
 #filterDict["parall"] = ["6"]
 #filterDict["nsims"] = ["500"]
-tagx = "nsims"
-tagy = "parall"
+#tagx = "nsims"
+#tagy = "parall"
 
 # results_paths = [dir2 + "ardego_quad_software_latin_lambdaLimit_False_50000",dir2 + "ardego_quad_software_latin_lambdaLimit_False_500000"]
 # plot_name = "ardego" + error2 + "_" + des + "_" + tit
@@ -213,14 +269,13 @@ tagy = "parall"
 #filterDict = {}
 
 # results_paths = [dir2 + "ardego_pq_software_latin_lambda_False_500000", dir2 + "ardego_pq_software_latin_lambda_False_50000", dir2 + "ardego_pq_software_latin_lambda_False_5000", dir + "pq/hc", dir + "pq/ms"]
-# filterDict = {}
+
 # filterDict["corr"] = ["anisotropic"]
 # filterDict["stddv"] = ["0.01"]
 # filterDict["sampleon"] = ["m"]
-# filterDict["nsims"] = ["50000"]
+# filterDict["nsims"] = ["5000"]
 # plot_name = "pq"
 # plot_name = "ardego" + error2 + "_" + des + "_" + tit
-# filterDict = {}
 
 # results_paths = [dir2 + "ardego_pq_software_latin_lambda_False_5_True_True",dir2 + "ardego_pq_software_latin_lambda_False_50_True_True",dir2 + "ardego_pq_software_latin_lambda_False_500_True_True",dir2 + "ardego_pq_software_latin_lambda_False_5000_True_False",dir2 + "ardego_pq_software_latin_lambda_False_50000_True_False",dir2 + "ardego_pq_software_latin_lambda_False_500000_True_False"]
 # plot_name = "ardego" + error2 + "_" + des + "_" + tit
@@ -231,24 +286,90 @@ tagy = "parall"
 # filterDict = {}
 
 # results_paths = [dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_50000", dir2 + "hc"]
-# plot_name = "ardegortm"
-# filterDict = {}
-# filterDict["nsims"] = ["500000"]
-
-#results_paths = [dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_5_True_True", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_50_True_True",dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_500_True_True",dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_5000", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_50000", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_500000"]
-results_paths = [dir2 + "ardego_pq_software_latin_lambda_False_50_True_True",dir2 + "ardego_pq_software_latin_lambda_False_500_True_True",dir2 + "ardego_pq_software_latin_lambda_False_5000", dir2 + "ardego_pq_software_latin_lambda_False_50000", dir2 + "ardego_pq_software_latin_lambda_False_500000", dir + "pq/ms", dir + "pq/hc"]
-plot_name = "pq"
+#plot_name = "ardegortm"
 #filterDict = {}
-filterDict["fF"] = ["pq"]
+#filterDict["nsims"] = ["50000"]
+
+
+#results_paths = [dir2 + "ardego_pq_software_latin_lambda_False_50_True_True",dir2 + "ardego_pq_software_latin_lambda_False_500_True_True",dir2 + "ardego_pq_software_latin_lambda_False_5000", dir2 + "ardego_pq_software_latin_lambda_False_50000", dir2 + "ardego_pq_software_latin_lambda_False_500000", dir + "pq/ms", "/media/sf_ubuntu_backup/hc_new/pq"]
+
+
+
+#results_paths = ["/media/sf_ubuntu_backup/new_ardego/ardego_maiaUsingMax3_xinyu_rtm_software_latin_lambda_False_5000_True_True", "/media/sf_ubuntu_backup/hc_new/xinyu_rtm"]
+
+
+#results_paths = [dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_5_True_True", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_50_True_True",dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_500_True_True",dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_5000", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_50000", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_500000", "/media/sf_ubuntu_backup/hc_new/xinyu_rtm"]
+#plot_name = "rtm"
+
+results_paths = ["/media/sf_ubuntu_backup/new_ardego/ardego_robot_software_latin_lambda_False_50000_True_True"]
+
+
+
+
+#results_paths = ["/media/sf_ubuntu_backup/new_ardego/ardego_pq_software_latin_lambda_False_5000_True_True", dir + "pq/ms", "/media/sf_ubuntu_backup/hc_new/pq"]
+
+results_paths = [dir2 + "ardego_pq_software_latin_lambda_False_50_True_True",dir2 + "ardego_pq_software_latin_lambda_False_500_True_True",dir2 + "ardego_pq_software_latin_lambda_False_5000", dir2 + "ardego_pq_software_latin_lambda_False_50000", dir2 + "ardego_pq_software_latin_lambda_False_500000", dir + "pq/ms", "/media/sf_ubuntu_backup/hc_new/pq"]
+plot_name="pq"
+
+results_paths = [dir2 + "ardego_pq_software_latin_lambda_False_50_True_True",dir2 + "ardego_pq_software_latin_lambda_False_500_True_True",dir2 + "ardego_pq_software_latin_lambda_False_5000", dir2 + "ardego_pq_software_latin_lambda_False_50000", dir2 + "ardego_pq_software_latin_lambda_False_500000", dir + "pq/ms", "/media/sf_ubuntu_backup/hc_new/pq"]
+plot_name="pq"
+
+
+
+
+
+results_paths = ["/media/sf_ubuntu_backup/ardego_fx_stochastic_small_sample_software_latin_lambda_False_5000_True_True", "/media/sf_ubuntu_backup/stochastic_aug"]#, dir + "stochastic/m_s"]
+plot_name="stochastic"
+
+
+results_paths = ["/media/sf_ubuntu_backup/ardego_robot_f3_20_small_samples_software_latin_lambda_False_5000_True_True","/media/sf_ubuntu_backup/ardego_robot_f5_20_small_samples_software_latin_lambda_False_5000_True_True", "/media/sf_ubuntu_backup/ardego_know_robot_ok"]#,  dir + "robot/m_s"]
+extra_tag = ["_extra_f3","_extra_f5", "_extra_know"]
+plot_name="robot"
+
+
+
+
+results_paths = ["/media/sf_ubuntu_backup/ardego_robot_f3_20_small_samples_software_latin_lambda_False_5000_True_True", "/media/sf_ubuntu_backup/ardego_robot_know_small_samples_software_latin_lambda_False_5000_True_True"]#,  dir + "robot/m_s"]
+extra_tag = ["", "_extra_know"]
+
+
+
+results_paths = ["/media/sf_ubuntu_backup/ardeg_xinyu_puremaia_lambda_False_5000_True_True", "/media/sf_ubuntu_backup/ardeg_xinyu_knowledge_max3tomaia_lambda_False_5000_True_True"]
+
+results_paths = ["/media/sf_ubuntu_backup/xinyu/ardeg_xinyu_maia_use_max3_lambda_False_5000_True_False", "/media/sf_ubuntu_backup/xinyu/ardeg_xinyu_maia_use_max3_f2_lambda_False_5000_True_False"]
+extra_tag = ["", "_extra_know"]
+results_paths = ["/media/sf_ubuntu_backup/xinyu/ardeg_xinyu_maia_sample_lambda_False_5000_True_True_new", "/media/sf_ubuntu_backup/xinyu/ardeg_xinyu_maia_f5_sample_lambda_False_5000_True_True", "/media/sf_ubuntu_backup/xinyu/ardeg_xinyu_maia_use_max3_8_14_small_FITFIX_lambda_False_5000_True_False"]
+extra_tag = ["", "_extra_f5", "_extra_know"]
+
+results_paths = ["/media/sf_ubuntu_backup/xinyu/ardeg_xinyu_maia_use_max3_8_14_small_FITFIX_lambda_False_5000_True_False"]
+extra_tag = ["", "_extra_f5", "_extra_know"]
+
+results_paths = [dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_5_True_True", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_50_True_True",dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_500_True_True",dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_5000", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_50000", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_500000", "/media/sf_ubuntu_backup/hc_new/xinyu_rtm"]
+plot_name="rtm"
+
+results_paths = ["/media/sf_ubuntu_backup/xinyu/ardego_xinyu_rtm_software_latin_lambda_False_50000_True_False", "/media/sf_ubuntu_backup/hc_new/xinyu_rtm"]
+extra_tag = ["", ""]
+plot_name="rtm_noadaptive"
+
+dir2 = "/media/sf_ubuntu_backup/"
+results_paths = [dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_5_True_True", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_50_True_True",dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_500_True_True",dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_5000", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_50000", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_500000", "/media/sf_ubuntu_backup/hc_new/xinyu_rtm"]
+plot_name="rtm"
+
+
+
+filterDict = {}
+#filterDict["fF"] = ["pq"]
 filterDict["corr"] = ["anisotropic"]
 filterDict["stddv"] = ["0.01"]
-filterDict["sampleon"] = ["m"]
+filterDict["sampleon"] = ["n"]
 filterDict["nsims"] = ["50000"]
+filterDict["parall"] = ["1","2","4","6","8","16"]
 off_keys.append("nsims")
 off_keys.append("corr")
 off_keys.append("stddv")
 off_keys.append("sampleon")
 
+ncol = 2
 
 #results_paths = [dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_500000_True_False",dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_50000_True_False",dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_5000_True_False"]# ,dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_500_True_False",dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_5000_True_False", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_50000_True_False", dir2 + "ardego_xinyu_rtm_software_latin_lambda_False_500000_True_False"]
 #results_paths = [dir2 + "ardego11_quad_software_latin_lambdaLimit_False_5000_True_False"]
@@ -264,13 +385,12 @@ off_keys.append("sampleon")
 # plot_name = "ardego" + error2 + "_" + des + "_" + tit
 # filterDict = {}
 
-tagx = "nsims"
+tagx = "tT"
 tagy = "parall"
 set_x_log = True
 
 #########
-print "MENDOOO"
-legend, folder_paths, ylabel, unit, set_y_log, maximization, best_val, title = aggregation_engine(results_paths, filterDict, off_keys, add_list)
+legend, folder_paths, ylabel, unit, set_y_log, maximization, best_val, title = aggregation_engine(results_paths, filterDict, off_keys, add_list, extra_tag)
 if unit == "sec":
     unit_divisor = 3600
 elif unit == "min":
@@ -290,7 +410,6 @@ def load_data(folder_path):
     under = 0
     total = 0
     total2 = 0
-    print "folder_path " + folder_path
     for file in files:
         #pdb.set_trace()
         tags = splitter(folder_path.split("/")[-2])
@@ -349,7 +468,7 @@ def lin_predict(x,y, min_XX, max_XX):
     output[0] = y[0]
     return z,output
     
-def prev_predict(x,y, min_XX, max_XX):
+def prev_predict(x,y, min_XX, max_XX):    
     def f_func(z):
         # if z < x[0]: 
             # return 
@@ -421,33 +540,17 @@ def gp_predict(x,y, min_XX, max_XX):
 def change_tick_font(ax, label2=False):
 	if label2:
 		for tick in ax.xaxis.get_major_ticks():
-		        tick.label2.set_fontsize(smallfontsize) 
+		        tick.label2.set_fontsize(smallfontsize-6) 
 		for tick in ax.yaxis.get_major_ticks():
-               	 	tick.label2.set_fontsize(smallfontsize) 
-		ax.yaxis.get_major_ticks()[0].set_visible(False)
+               	 	tick.label2.set_fontsize(smallfontsize-6) 
+		#ax.yaxis.get_major_ticks()[0].set_visible(True)
 		#ax.yaxis.get_major_ticks()[-1].set_visible(False)
 	else:
 		for tick in ax.xaxis.get_major_ticks():
-		        tick.label1.set_fontsize(smallfontsize) 
+		        tick.label1.set_fontsize(smallfontsize-6) 
 		for tick in ax.yaxis.get_major_ticks():
-               	 	tick.label1.set_fontsize(smallfontsize) 
-		ax.yaxis.get_major_ticks()[0].set_visible(False)
-		#ax.yaxis.get_major_ticks()[-1].set_visible(False)
-
-def change_tick_font(ax, label2=False):
-	if label2:
-		for tick in ax.xaxis.get_major_ticks():
-		        tick.label2.set_fontsize(smallfontsize) 
-		for tick in ax.yaxis.get_major_ticks():
-               	 	tick.label2.set_fontsize(smallfontsize) 
-		ax.yaxis.get_major_ticks()[0].set_visible(False)
-		#ax.yaxis.get_major_ticks()[-1].set_visible(False)
-	else:
-		for tick in ax.xaxis.get_major_ticks():
-		        tick.label1.set_fontsize(smallfontsize) 
-		for tick in ax.yaxis.get_major_ticks():
-               	 	tick.label1.set_fontsize(smallfontsize) 
-		ax.yaxis.get_major_ticks()[0].set_visible(False)
+               	 	tick.label1.set_fontsize(smallfontsize-6) 
+		#ax.yaxis.get_major_ticks()[0].set_visible(False)
 		#ax.yaxis.get_major_ticks()[-1].set_visible(False)
 
 from matplotlib.lines import Line2D
@@ -459,15 +562,25 @@ for marker in Line2D.markers:
     except TypeError:
         pass
 
+
+colormapdict = {"H":[get_cmap("Blues_r"),0.,"-", 2.0],"A":[get_cmap("Oranges_r"),0.,"--", 2.0],"M":[get_cmap("Greens_r"),0.,":", 6.0]}  
         
 if 1: ## throughput
-    fig = figure(figsize=(12,5))
+    #fig = figure(figsize=(12,7)) //ardego
+    fig = figure(figsize=(12,7))
     ax = fig.add_subplot(111)#
-    symbols =['--','-.','-D','-*','->','-d','-|','-1','-2','-3','-4','-+','-<','-.','-D','-*','--','-+','-.','-0','-D','-*','--','-+','-.','-0','-D','-*','--','-+','-.','-0','-D','-*','--','-+','-.','-0','-D','-*','-+','-.','-0','-D','-*','--','-+','-.','-0','-D','-*','--','-+','-.','-0','-D','-*','-+','-.','-0','-D','-*','--','-+','-.','-0','-D','-*','--','-+','-.','-0','-D','-*']
     lines = []    
     ym = []
     lineNum = 0
     y_t = []    
+    Xsss = []
+    Ysss = []
+    n = len(folder_paths)
+    color=iter(cm.BrBG(np.linspace(0.1,1,n)))
+    minXXS0 =  1000000000000000000.
+    maxY = -1.0
+    minY = 1000000000000000000
+    iii  = 0
     for i,folder_path in enumerate(folder_paths):
         print str(i) + " " + folder_path
         XX,YY, n = load_data(folder_path)
@@ -479,6 +592,7 @@ if 1: ## throughput
         except:
             pdb.set_trace()
         min_XX = np.min([np.min(XXX) for XXX in XX]) ## nasty
+        
         Xss = 0
         Yss = 0
         y_tt = []
@@ -498,7 +612,9 @@ if 1: ## throughput
         print "max_XX ",str(max_XX /unit_divisor)
         
         Yss = np.array(Yss) / n 
-        Xss = Xss / unit_divisor
+        Xss = Xss / (unit_divisor)
+        minY = min(np.min(Yss),minY)
+        maxY = max(np.max(Yss),maxY)
         #ax.plot(X, Y, 'b+', linewidth = 3.0)
         
         try:
@@ -518,30 +634,45 @@ if 1: ## throughput
         except:
             #pdb.set_trace()
             print "something went wrong... probs hill climbing"
+        Xsss.append([Xss,Yss,legend[lineNum]])
+        print legend
         
-        colormap = mpl.pyplot.get_cmap("gist_ncar")
-        #fig.gca().set_color_cycle([colormap(i) for i in np.linspace(0, 0.9, 20)])
-        line, = ax.plot(Xss, Yss, symbols[i], linewidth = 3.0, markersize = 6.0)
-        xss  = np.reshape(Xss,(Xss.shape[0],))
-        ymm  = np.reshape(Yss,(Yss.shape[0],))
-        
-        #ax.fill_between(xss,ymm + 2.*np.sqrt(ys22), ymm - 2.*np.sqrt(ys22), facecolor=[0.,1.0,0.0,0.8],linewidths=0.0)
+        cd = colormapdict[legend[lineNum][0]]
+        cc = cd[0](1.05*(cd[1]/9.0)+0.1)
+        print colormapdict
+        colormapdict[legend[lineNum][0]][1] = colormapdict[legend[lineNum][0]][1] + 1.0
+        line, = ax.plot(Xss, Yss, colormapdict[legend[lineNum][0]][2], linewidth = colormapdict[legend[lineNum][0]][3], markersize = 6.0, c=cc)
         lines.append(line)
+        minXXS0 = min(minXXS0,Xss[0])
         lineNum += 1
         ym = []
+    
+    
+    #legend2 = []    
+    #kkk = sorted(Xsss, key=lambda tup: sum([ tup[1][i] / tup[0][i] for i in range(len(tup[0]))])) 
+    #kkk.reverse()
+    #for Xss, Yss, ll in kkk:
+        # Xss[0] = minXXS0
+        # cc=tableau20[iii]
+        # iii = iii + 1
+        # legend2.append(ll)
+        # line, = ax.plot(Xss, Yss, "-", linewidth = 3.0, markersize = 6.0, c=cc)
+        # lines.append(line)
     
     if maximization:
         #loc = "upper left"
         loc = "lower right"
     else:
-        #loc = "upper right"
-        loc = "lower left"
-    l = ax.legend(legend, loc=loc,prop={'size':annotatefontsize-6}, ncol=ncol)
+        loc = "upper right"
+        #loc = "lower left"
+    #l = ax.legend(legend, prop={'size':annotatefontsize-6}, bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+    #       ncol=3, mode="expand", borderaxespad=0.,frameon=False)
+    l = ax.legend(legend, prop={'size':annotatefontsize-10},loc=loc,
+           ncol=ncol, borderaxespad=0.,frameon=False, columnspacing = 0.5)
     if set_y_log:
         ax.set_yscale('log')
     if set_x_log:
         ax.set_xscale('log')
-   
     # quad en
     # axvline(x=24*1,color="gray", linestyle="--")
     # axvline(x=24*7,color="gray", linestyle="--")
@@ -567,20 +698,43 @@ if 1: ## throughput
     # ax.annotate('7 days', xy=(737, 435),  xycoords='figure pixels', fontsize = annotatefontsize-4, rotation=90)
    
     ## for pq
-    axvline(x=24*7,color="gray", linestyle="--")
-    axvline(x=24*14,color="gray", linestyle="--")
-    axhline(y=best_val*0.95,color="gray", linestyle="--")
-    ax.annotate('95% of globally optimal performance', xy=(120, 410),  xycoords='figure pixels', fontsize = annotatefontsize-4)
-    ax.annotate('7 days', xy=(734, 160),  xycoords='figure pixels', fontsize = annotatefontsize-4, rotation=90)
-    ax.annotate('14 days', xy=(818, 166),  xycoords='figure pixels', fontsize = annotatefontsize-4, rotation=90)
-
+    #axvline(x=24*7,color="black", linestyle="-")
+    #axvline(x=24*14,color="black", linestyle="-")
+    #axhline(y=best_val*0.95,color="black", linestyle="-")
+    #ax.annotate('95% of globally optimal performance', xy=(120, 410),  xycoords='figure pixels', fontsize = annotatefontsize-4)
+    #ax.annotate('7 days', xy=(734, 160),  xycoords='figure pixels', fontsize = annotatefontsize-4, rotation=90)
+    #ax.annotate('14 days', xy=(818, 166),  xycoords='figure pixels', fontsize = annotatefontsize-4, rotation=90)
 
     setp(l.get_title(), fontsize=smallfontsize)
-    ax.set_xlabel('Optimization time (hours)', fontsize = fontsize)
-    ax.set_ylabel(ylabel, fontsize = fontsize)
-    ax.set_title(title, fontsize = fontsize, y=1.08)
-    #ax.grid(True)
-    change_tick_font(ax)
+    ax.set_xlabel('Optimization time (hours)', fontsize = fontsize -4 )
+    ax.set_ylabel(ylabel, fontsize = fontsize - 4)
+    #ax.set_title(title, fontsize = fontsize, y=1.08)
+    ax.xaxis.grid(False)
+    ax.yaxis.grid(True)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(True)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(True)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    
+    ax.axis('tight')
+    from matplotlib.ticker import ScalarFormatter, FuncFormatter, FixedLocator
+    for axis in [ax.xaxis, ax.yaxis]:
+        axis.set_major_formatter(ScalarFormatter(useOffset=False))
+        
+    yticks = ax.yaxis.get_majorticklocs().tolist()
+    new_yticks = []
+    for yt in yticks:
+        if (yt > minY and yt < maxY):
+            new_yticks.append(yt)
+    #new_yticks.append(minY)
+    new_yticks.append(maxY)
+    new_yticks.append(0.067)
+    print maxY
+    print minY
+    ax.yaxis.set_ticks(new_yticks)
+    change_tick_font(ax)    
     if save:
         fig.subplots_adjust(left=0.05, right=0.99, top=0.95, bottom=0.21)
         fig.savefig("images/" + plot_name, bbox_inches='tight')

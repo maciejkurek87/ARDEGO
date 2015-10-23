@@ -12,16 +12,13 @@ $n_sims = 5000;
 $limit_lambda_search = "False";
 $weights_on = "True";
 $sampling_fancy = "True";
-$fixMax4Bug = "True";
-$platformMax3 = "False";
-
 
 $run_dir = "examples/quadrature_method_based_app/"; 
 $config_file = $run_dir."configuration_script.py";
 $fitness_file = $run_dir."fitness_script.py";
-$results_folder = "/data/mk306/join/ardego_quad_maia_8_14_f3_software_latin_lambdaLimit_${limit_lambda_search}_${n_sims}_${weights_on}_${sampling_fancy}_${fixMax4Bug}_${platformMax3}";
+$results_folder = "/data/mk306/ardego_quad_software_latin_lambdaLimit_${limit_lambda_search}_${n_sims}_${weights_on}_${sampling_fancy}";
 #system("rm -Rf $results_folder");
-$parallelism = 12;
+$parallelism = 3;
 system("mkdir ".$results_folder); 
 $pid = 1;
 for ($i=0; $i < $parallelism - 1; $i++) {
@@ -38,7 +35,7 @@ if ($pid) {
 sleep($i * 5);
 $epoch = time_since_epoch();
 chomp($epoch);
-$tempfile = "/data/mk306/temp_ardeg_quad_$epoch.txt";
+$tempfile = "/data/mk306/temp$epoch.txt";
 $tempfolder = "/data/mk306/ardego_".$epoch."/";
 system("mkdir ".$tempfolder); 
 system("cp -Rf * ".$tempfolder);
@@ -50,15 +47,12 @@ print $tempfolder."\n";
 modify("results_folder_path =", 'results_folder_path ="'.$results_folder.'"', $config_file);
 modify("trials_type =", 'trials_type =\"P_ARDEGO_Trial\"', $config_file);
 modify("surrogate_type =", 'surrogate_type ="bayes2"', $config_file);
-modify("trials_count =", "trials_count = 10", $config_file);
+modify("trials_count =", "trials_count = 20", $config_file);
 modify("n_sims =", "n_sims = ${n_sims}", $config_file);
 modify('corr =', 'corr = "anisotropic"', $config_file);
 modify('limit_lambda_search =', "limit_lambda_search = ${limit_lambda_search}", $config_file);
 modify('weights_on =', "weights_on = ${weights_on}", $config_file);
 modify('sampling_fancy =', "sampling_fancy = ${sampling_fancy}", $config_file);
-modify('fixMax4Bug =', "fixMax4Bug = ${fixMax4Bug}", $fitness_file);
-modify('platformMax3 =', "platformMax3 = ${platformMax3}", $fitness_file);
-
 
 $goal_tag  = "goal ="; 
 $ret_exec_tag  = "return_execution_time ="; 
@@ -69,21 +63,18 @@ foreach (@tuple1 = splice(@myErrors,0,2); @tuple1; @tuple1 = splice(@myErrors,0,
     my ($goal, $ret) = @tuple1;
     ## modify to match goal    
     $max_error_tag  = 'maxError ='; 
-    @maxError = ('0.1', '0.01', '0.001'); 
+    @maxError = ('maxError = 0.1', 'maxError = 0.01', 'maxError = 0.001'); 
     #@maxError = ('maxError = 0.001'); 
     foreach (@maxError) {
-        $errorr = $_;
-        $error = 'maxError = '.$_;
+        $error = $_;
         #print $error;
         $p_tag  = "parall =";
-        @p = ('parall = 1', 'parall = 2', 'parall = 4', 'parall = 6'); 
-        #@p = ('parall = 2'); 
+        #@p = ('parall = 1', 'parall = 2', 'parall = 4', 'parall = 6'); 
+        @p = ('parall = 2'); 
         foreach (@p) {
             if ($j % $parallelism == ($i - 1)){ #easiest way to divide tasks
                 modify($goal_tag, $goal, $config_file);
                 modify($ret_exec_tag, $ret, $fitness_file);
-                #$old_run_dir = 'old_run_dir = "/data/mk306/old/ardego_quad_software_latin_lambdaLimit_False_5000_True_True_False_True/tT_AARDEGO_corr_anisotropic_nsims_5000_parall_1_fF_ansonE'.$errorr.'ThTrue/"';
-                #modify('old_run_dir =', $old_run_dir, $config_file);
                 print $error;
                 modify($max_error_tag, $error, $fitness_file);
                 modify($p_tag, $_, $config_file);

@@ -60,7 +60,7 @@ class Run(object):
         elif self.configuration.trials_type  == "PSOTrial":
             return "tT_" + "MLO" + "_corr_" + self.configuration.corr + "_stddv_" + str(self.configuration.max_stdv) + "_sampleon_" + self.configuration.sample_on
         elif self.configuration.trials_type  == "Gradient_Trial":
-            return "tT_" + "Hill Climbing" + "_parall_" + str(self.configuration.parall)
+            return "tT_" + "Hill Climbing"
         else:
             return "tT_" + self.configuration.trials_type
         

@@ -28,12 +28,6 @@ run_example5:
     
 run_example6:
 	./run_mlo.sh -f examples/pq/fitness_script.py -c examples/pq/configuration_script.py
-
-run_example7:
-	./run_mlo.sh -f examples/robot/fitness_script.py -c examples/robot/configuration_script.py
-    
-run_example8:
-	./run_mlo.sh -f examples/stochastic/fitness_script.py -c examples/stochastic/configuration_script.py
     
 run_example_empty:
 	./run_mlo.sh -f examples/empty/fitness_script.py -c examples/empty/configuration_script.py

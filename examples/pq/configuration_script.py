@@ -33,10 +33,10 @@ M = 10
 trials_type ="P_ARDEGO_Trial"
 surrogate_type ="bayes2"
 
-parall = 6
+parall = 2
 xxx = parall
 if xxx == 6:
-	max_fitness = 120.0
+	max_fitness = 150.0
 else:
 	max_fitness = 100.0
 
@@ -60,7 +60,7 @@ KK = 0.73
 a="a1"
 ### Visualisation
 
-vis_every_X_steps = 1000000000000 # How often to visualize
+vis_every_X_steps = 1 # How often to visualize
 counter = 'g'  # The counter that visualization uses as a 'step'
 max_counter = max_iter  # Maximum value of counter
 

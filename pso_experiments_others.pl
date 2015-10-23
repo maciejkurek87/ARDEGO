@@ -2,23 +2,22 @@ sub modify {
     my $tag = $_[0];
     my $newtag = $_[1];
     my $file = $_[2];
-    my $command = 'sed -i \'/'.$tag.'/c\\'.$newtag.'\' '.$file;
-    system($command);
+    system("sed -i '/$tag/c\\$newtag' ".$file."\n");
 }
 
 sub time_since_epoch { return `date +%s` }
 
 
-$fitnes_function = "stochastic";
+$fitnes_function = "pq";
 $run_dir = "examples/${fitnes_function}/"; 
 $config_file = $run_dir."configuration_script.py";
 $fitness_file = $run_dir."fitness_script.py";
 
-$sampling = "m";
+$sampling = "no";
 $m = 10;
-$results_folder = "/data/mk306/pso_${fitnes_function}_params_${sampling}_sample_m_${m}";
+$results_folder = "/data/mk306/extra3_pso_${fitnes_function}_params_${sampling}_sample_m_${m}";
 system("rm -Rf $results_folder");
-$parallelism = 6;
+$parallelism = 3;
 system("mkdir ".$results_folder); 
 $pid = 1;
 for ($i=0; $i < $parallelism - 1; $i++) {
@@ -55,7 +54,7 @@ modify('goal =', 'goal = "max"', $config_file);
 $j = 0;
 
 $kernel_tag  = 'corr ='; 
-@kernel = ('corr = "anisotropic"', 'corr = "isotropic"', 'corr = "matern3"'); 
+@kernel = ('corr = "anisotropic"');#, 'corr = "isotropic"', 'corr = "matern3"'); 
 foreach (@kernel) {
     modify($kernel_tag, $_, $config_file);
     $max_stdv_tag  = 'max_stdv =';
@@ -69,8 +68,7 @@ foreach (@kernel) {
         if (($j % $parallelism) == ($i - 1)){ #easiest way to divide tasks
             #print $i."\n";
             print "start $j $max_stdv \n";
-            my $command = 'make run_example8 > '.$tempfile.' 2>&1';
-            system($command);
+            system("make run_example6 &> $tempfile");
             print "done $j\n";
         }
         $j = $j + 1;

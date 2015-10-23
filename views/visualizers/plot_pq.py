@@ -65,7 +65,7 @@ class ImageViewer(object):
         from matplotlib.offsetbox import AnchoredText
         from matplotlib.patheffects import withStroke
         if size is None:
-            size = dict(size=26)
+            size = dict(size=22)
             #size = dict(size=mpl.pyplot.rcParams['legend.fontsize'])
         at = AnchoredText(title, loc=loc, prop=size,
                           pad=0., borderpad=0.5,
@@ -87,7 +87,7 @@ class ImageViewer(object):
             plot.set_xlabel('\n' + fitness.get_x_axis_name(), linespacing=3.,
                             fontsize=font_size+12)
 
-            colour_map = mpl.pyplot.get_cmap("jet")#graph_dict['colour map'])
+            colour_map = mpl.pyplot.get_cmap("gist_yarg")#graph_dict['colour map'])
 
             ### Other settings
             locator = LinearLocator(5)
@@ -197,7 +197,7 @@ class ImageViewer(object):
         D_0 = len(data)
         D_1 = len(data[0])
         colour_map = mpl.cm.get_cmap(cmap_string)#gist_yarg")#graph_dict['colour map'])
-        colour_map = mpl.cm.get_cmap("jet")
+        colour_map = mpl.cm.get_cmap("YlOrRd")
         data = array(data)
         lognorm = False
         #lognorm = False
@@ -222,7 +222,7 @@ class ImageViewer(object):
                 data_min = max(data.min(),0.0000001)
             else:
                 data_min=data.min()
-        
+                
         if not (data is None):        
             logging.debug("Data passed...")
             try:
@@ -234,8 +234,8 @@ class ImageViewer(object):
                                 share_all = True,
                                 #aspect=1.0,
                                 cbar_mode = 'single',
-                                cbar_location = 'right',
-                                cbar_size="5.5%",
+                                cbar_location = 'bottom',
+                                cbar_size=".6%",
                                 )
                 if lognorm:
                     log_norm = mpl.colors.LogNorm(vmax=data_max,vmin=data_min)
@@ -275,39 +275,36 @@ class ImageViewer(object):
                         #grid[i*D_1 + j].ylim()
                         
                         dim_grid = d["dim_grid"]
-                        extra = ""
+                        extra =""
                         if (dim_grid[1] is None):
                             pass
                         else:
                             extra = str(int(dim_grid[1][j])) + "_"
-                        im_title = str(int(dim_grid[0][i])) + " Core" 
-                        if dim_grid[0][i] != 1:
-                            im_title = im_title + "s"
+                        im_title = extra + str(int(dim_grid[0][i]))
                         
                         t = MLOImageViewer.add_inner_title(grid[i*D_1 + j], im_title, loc=1)
                         counter = 0
 
-                grid[1].set_xlabel("Mantissa Width", fontsize = 26)
-                grid[0].set_ylabel("Clock Frequency", fontsize = 26)
+                
                 if meta_plots:
-                    grid.cbar_axes[0].colorbar(CS,ticks=levels,alpha=alpha,format='%d')
+                    grid.cbar_axes[0].colorbar(CS,ticks=levels,alpha=alpha)
                     grid.cbar_axes[0].set_xticklabels([v for k, v in d['fitness'].error_labels.items()],
                                 rotation='horizontal',
                                 multialignment = 'right',
                                 horizontalalignment = "left",
-                                fontsize=24)
+                                fontsize=16)
                 else:
                     #for cbar_ax in grid.cbar_axes: 
                     #    cbar_ax.colorbar(CS)#,alpha=alpha)#,ticks=CS.levels)
                     #    cbar_ax.tick_params(labelsize=14)
-                    cb = grid.cbar_axes[0].colorbar(CS,alpha=alpha,format='%d')#,ticks=CS.levels)#,norm = LogNorm(vmax=data_max,vmin=data_min))#,ticks=CS.levels)
-                    grid.cbar_axes[0].tick_params(labelsize=24)
-                    cb.ax.set_ylabel('Particles / Second', fontsize=24)
+                    grid.cbar_axes[0].colorbar(CS,alpha=alpha,format='%.1f')#,ticks=CS.levels)#,norm = LogNorm(vmax=data_max,vmin=data_min))#,ticks=CS.levels)
+                    grid.cbar_axes[0].tick_params(labelsize=16)
+                    
                     if False:
                         cmin,cmax = grid.cbar_axes[0].get_clim()
                         ticks = np.linspace(cmin,cmax,2)
                         grid.cbar_axes[0].set_ticks(ticks)
-                        grid.cbar_axes[0].set_ticklabels(['%d' %2**t for t in ticks])
+                        grid.cbar_axes[0].set_ticklabels(['%.1g' %2**t for t in ticks])
                     
                 #fig.suptitle(title, fontsize=ImageViewer.TITLE_FONT_SIZE)
                 #fig.suptitle(info, fontsize=ImageViewer.TITLE_FONT_SIZE)
@@ -316,7 +313,7 @@ class ImageViewer(object):
                         #ax.xaxis.set_minor_locator(FixedLocator([0,4,16,20,24,28],nbins=4))
                         ax.xaxis.set_major_locator(MaxNLocator(trim = False, nbins=5, steps=[0,1,2,3,4,7,15,16], prune=None, integer=True, symmetric=False))
                         ax.yaxis.set_major_locator(MaxNLocator(6))
-                        ax.tick_params(direction='out', labelsize='22',which='major', length=4) 
+                        ax.tick_params(direction='out', labelsize='16',which='major', length=4) 
                         
                         for xlabel in ax.get_xticklabels():
                             xlabel.set_rotation(-90)
@@ -326,7 +323,7 @@ class ImageViewer(object):
                         ax.yaxis.set_major_locator(NullLocator())
                         
                 #title.replace("Proximity Query Design Throughput Benchmark ", "") ## remove whitespaces
-                #fig.suptitle("Proximity Query Design Throughput Benchmark", fontsize=26)
+                fig.suptitle("Proximity Query Design Throughput Benchmark", fontsize=26)
                 ImageViewer.save_fig(fig, str(d['images_folder']) + '/' + title + '_' + str(d['counter']) + '.png', ImageViewer.DPI)
             except TypeError,e:
                 logging.error('Could not create ' + str(title) + ' plot for the GPR plot: ' + str(e))
@@ -573,7 +570,7 @@ class ImageViewer(object):
                     
         logging.info("Fitness prepared")        
         graph_dict = d['all_graph_dicts']['Fitness']
-        ImageViewer.render_3_4d(figure, "Plotting fitness function grid", d, graph_dict, "fx", data,lognorm=True, mask=mask, fitness=d['fitness'])    
+        ImageViewer.render_3_4d(figure, "Plotting fitness function grid", d, graph_dict, "$f(\mathbf{x})$", data,lognorm=True, mask=mask, fitness=d['fitness'])    
                 
     @staticmethod
     def plot_fitness_function(figure, d):
@@ -1784,9 +1781,9 @@ class MonteCarlo_ImageViewer(ImageViewer):
             
                 if True:#dictionary['all_graph_dicts']['Fitness']['generate']:
                     ImageViewer.plot_fitness_function_grid(figure, dictionary)
-                if False:#dictionary['all_graph_dicts']['DesignSpace']['generate']:
+                if True:#dictionary['all_graph_dicts']['DesignSpace']['generate']:
                     mask = MLOImageViewer.plot_design_space_grid(figure, dictionary)
-                if False:
+                if True:
                     MLOImageViewer.plot_MU_S2_EI_grid(figure, dictionary, mask)
             else:
                 logging.info("We only support visualization of 2, 3 and 4 dimensional spaces")
