@@ -2,9 +2,9 @@ import logging
 
 import sys
 if sys.version_info > (2, 6):
-    from classifiers import Classifier, SupportVectorMachineClassifier
+    from classifiers import Classifier, SupportVectorMachineClassifier, ResourceAwareClassifier
 else:
-    from classifiers import Classifier, SupportVectorMachineClassifier, RelevanceVectorMachineClassifier, RelevanceVectorMachineClassifier2
+    from classifiers import Classifier, SupportVectorMachineClassifier, RelevanceVectorMachineClassifier, RelevanceVectorMachineClassifier2, ResourceAwareClassifier
     
 from regressors import Regressor, GaussianProcessRegressor, GaussianProcessRegressor4
 
@@ -747,10 +747,12 @@ class BayesClassSurrogateModel2(BayesClassSurrogateModel):
         return [(self.classifier.training_set, self.classifier.training_labels),(self.regressor.training_set, self.regressor.training_fitness)]
 
     def __init__(self, configuration, controller, fitness):
-        super(BayesClassSurrogateModel2, self).__init__(configuration,
-                                                   controller,
-                                                   fitness)
-        
+        #super(BayesClassSurrogateModel2, self).__init__(configuration,
+        #                                           controller,
+        #                                           fitness)
+        self.controller = controller
+        self.fitness = fitness
+        self.configuration = configuration
         self.propa_classifier = False
         if configuration.classifier == 'RelevanceVectorMachine':
             self.classifier = RelevanceVectorMachineClassifier(fitness, configuration)
@@ -759,6 +761,9 @@ class BayesClassSurrogateModel2(BayesClassSurrogateModel):
             self.classifier = RelevanceVectorMachineClassifier2(fitness, configuration)
         elif configuration.classifier == 'SupportVectorMachine':
             self.classifier = SupportVectorMachineClassifier(fitness, configuration)
+        elif configuration.classifier == 'ResourceAwareClassifier':
+            self.classifier = ResourceAwareClassifier(fitness, configuration, controller)
+            self.propa_classifier = True
         else:
             logging.error('Classifier type ' + str(configuration.classifier) + '  not supported')
         self.retrain_regressor = True
@@ -796,7 +801,6 @@ class BayesClassSurrogateModel2(BayesClassSurrogateModel):
         else:
             logging.info("Regressor training set was not updated... only classifier will be retrained")
         if self.classifier.train(bests=self.get_bests_index()) and training_ok:
-            
             logging.info("Trained Surrogate Model, error up to:" + str(self.regressor.error_tolerance()))
         else:
             logging.info("Couldnt Train Surrogate Model")

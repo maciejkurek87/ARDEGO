@@ -6,7 +6,7 @@ CFLAGS2=-parallel -fast -O3
 python: 
 	swig -python ei_multi.i
 	gcc -fPIC -std=c99 -c ei_multi.c -lm 
-	gcc -fPIC -std=c99 -c ei_multi_wrap.c -lpython2.6 -I/usr/include/python2.6 -I/usr/local/lib/python2.6/site-packages/numpy/core/include
+	gcc -fPIC -std=c99 -c ei_multi_wrap.c -lpython2.7 -I/usr/include/python2.7 -I/usr/local/lib/python2.7/site-packages/numpy/core/include
 	ld -shared ei_multi_wrap.o ei_multi.o -o _ei_soft.so
 
 all: ei_bench

@@ -27,7 +27,7 @@ toolbox = base.Toolbox()
 
 from ..surrogatemodels.surrogatemodel import DummySurrogateModel, ProperSurrogateModel, LocalSurrogateModel, BayesClassSurrogateModel, BayesClassSurrogateModel2
 from ..surrogatemodels.costmodel import DummyCostModel, ProperCostModel
-from ..surrogatemodels.classifiers import Classifier, SupportVectorMachineClassifier, RelevanceVectorMachineClassifier
+from ..surrogatemodels.classifiers import Classifier, SupportVectorMachineClassifier, RelevanceVectorMachineClassifier, ResourceAwareClassifier
 import lhs 
 import pdb
 
@@ -1113,7 +1113,9 @@ class MonteCarloTrial(Trial):
 class P_ARDEGO_Trial(Trial):
 
     def dump(self):
+        '''
         dump_folder = self.dump_folder
+        pdb.set_trace()
         list0 = dict(zip([str(x) for x in self.surrogate_model.get_dump()[0][0]],self.surrogate_model.get_dump()[0][1]))
         list1 = dict(zip([str(x) for x in self.surrogate_model.get_dump()[1][0]],self.surrogate_model.get_dump()[1][1]))
         output = []
@@ -1127,6 +1129,8 @@ class P_ARDEGO_Trial(Trial):
             for o in output:
                 spamwriter.writerow(o)
         logging.info("State dumped..")
+        '''
+        logging.info("State dump disabled")
                 
 
     def fitness_function(self, part, add=False):

@@ -326,6 +326,7 @@ class GaussianProcessRegressor4(Regressor):
         self.k = None
         self.i = None
         self.transLog = True
+        self.forceLog = False
         
     def error_tolerance(self):
         return exp(self.output_scaler.inverse_transform(self.k.gethyp())[-1] + self.shift_by())
@@ -418,7 +419,7 @@ class GaussianProcessRegressor4(Regressor):
             logging.info('Training Regressors with/without log failed')
             return False
             
-        if (log_nlm < nlm): 
+        if (log_nlm < nlm or self.forceLog): 
             logging.info('Using log transform')
             self.k=log_k
             self.m=log_m
@@ -571,17 +572,21 @@ class GaussianProcessRegressor4(Regressor):
         else:
             if self.transLog:
                 MU = exp(self.output_scaler.inverse_transform(vargout[0]) + self.shift_by()) 
+                S2 = exp(self.output_scaler.inverse_transform(S2) + self.shift_by()) 
             else:
                 MU = self.output_scaler.inverse_transform(vargout[0])
-            
+                S2 = self.output_scaler.inverse_transform(S2)
             if with_EI:
-                EI = self.e_impr(S2, vargout[0])
+                EI = self.e_impr(vargout[1], vargout[0])
                 place(EI,EI < 0.000001,0.0) ## we dont want those crappy little numbers...
             else:
                 EI = []
             
             if single_input:
-                return array([MU[0]]), array([S2[0]]), array([EI[0]]), None
+                if with_EI:
+                    return array([MU[0]]), array([S2[0]]), array([EI[0]]), None
+                else:
+                    return array([MU[0]]), array([S2[0]]), None, None
             else:
                 return MU, S2, EI, None
         #except Exception, e:

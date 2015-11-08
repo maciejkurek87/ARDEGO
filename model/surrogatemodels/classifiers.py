@@ -1,3 +1,4 @@
+
 import logging
 import traceback
 
@@ -8,6 +9,8 @@ from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import StratifiedKFold, KFold, LeaveOneOut
 from copy import deepcopy
 from pyGP_OO.Valid import valid
+from scipy.stats import norm
+from regressors import * 
 
 from utils import numpy_array_index
 
@@ -514,8 +517,6 @@ class RelevanceVectorMachineClassifier(Classifier):
         dist = sqrt(sum_squared_diffs)
         return dist
             
-
-            
 class RelevanceVectorMachineClassifier2(Classifier):
 
     def translate_to_neg_pos(self, labels):
@@ -715,3 +716,100 @@ class RelevanceVectorMachineClassifier2(Classifier):
         dist = sqrt(sum_squared_diffs)
         return dist
             
+class ResourceAwareClassifier(Classifier):
+
+    def __init__(self, fitness, conf, controller):
+        super(ResourceAwareClassifier, self).__init__(fitness, conf)
+                
+        self.posresourceregressors = []
+        self.resourceregressors = []
+        self.binaryresourceclassifiers = []
+        
+        for key, rc in self.fitness.resource_class.iteritems():
+            if rc["type"] == "logreg":
+                regre = GaussianProcessRegressor4(controller, conf, fitness)
+                regre.forceLog = True
+                self.posresourceregressors.append((regre,key))
+            if rc["type"] == "reg":
+                self.resourceregressors.append((GaussianProcessRegressor4(controller, conf, fitness),key))
+            if rc["type"] == "bin":
+                self.binaryresourceclassifiers.append((SupportVectorMachineClassifier(fitness, conf),key))
+        
+    def add_training_instance(self, part, label):      
+        super(ResourceAwareClassifier, self).add_training_instance(part, label)
+        re_output = self.fitness.fitnessFunc(part, {}, return_resource = True)
+        for reg, key in self.posresourceregressors:
+            if not (re_output[key] is None):
+                reg.add_training_instance(part, re_output[key])
+        for reg, key in self.resourceregressors:
+            if not (re_output[key] is None):
+                reg.add_training_instance(part, re_output[key])
+        for clas, key in self.binaryresourceclassifiers:
+            #pdb.set_trace()
+            if label == 1:
+                clas.add_training_instance(part, 1)
+            elif re_output[key]:
+                clas.add_training_instance(part, 0)
+                
+                
+                
+    def train(self, local_structure=False, bests=None):
+        try:
+            regressors_trained = True
+            for reg, key in self.posresourceregressors:
+                regressors_trained = regressors_trained and reg.train()
+            logging.info("Resource regression training done" + str(regressors_trained))
+            for reg, key in self.resourceregressors:
+                regressors_trained = regressors_trained and reg.train()
+            logging.info("Other data regression classification training done" + str(regressors_trained))
+            for clas, key in self.binaryresourceclassifiers:
+                regressors_trained = regressors_trained and clas.train()
+            logging.info("Binary classifier training done " + str(regressors_trained))
+            return regressors_trained
+        except Exception, e:
+            logging.error('Classifier training failed.. ' + str(e))
+            return False
+
+    def predict(self, z):
+        output = 1.0
+        
+        for reg, key in self.posresourceregressors:
+            mu, s2, bla, bla2 = reg.predict(z, False, False)
+            low = norm.cdf(self.fitness.resource_class[key]["lower_limit"], loc=mu, scale=s2)
+            high = norm.cdf(self.fitness.resource_class[key]["higher_limit"], loc=mu, scale=s2)
+            output = output * (high - low)
+            pdb.set_trace()
+        for reg, key in self.resourceregressors:
+            mu, s2, bla, bla2 = reg.predict(z, False, False)
+            low = norm.cdf(self.fitness.resource_class[key]["lower_limit"], loc=mu, scale=s2)
+            high = norm.cdf(self.fitness.resource_class[key]["higher_limit"], loc=mu, scale=s2)
+            output = output * (high - low)
+        for clas, key in self.binaryresourceclassifiers: 
+            output = output * clas.predict(z)
+        return output
+        #try:
+        #    
+        #except Exception, e:
+        #    logging.error('Prediction failed... ' + str(e))
+        #    return None
+            
+    def get_parameter_string(self): # not used really
+        return "N\A"
+            
+    ## TODO - come up with a smart way of storing these...
+    def get_state_dictionary(self):
+        dict = {'posresourceregressors' : self.posresourceregressors,
+                'resourceregressors': self.resourceregressors,
+                'binaryresourceclassifiers': self.binaryresourceclassifiers,
+                'training_set' : self.training_set,
+                'training_labels': self.training_labels}
+        return dict
+        
+    ###
+    def set_state_dictionary(self, dict):
+        self.posresourceregressors = dict['posresourceregressors']
+        self.resourceregressors = dict['resourceregressors']
+        self.binaryresourceclassifiers = dict['binaryresourceclassifiers']
+        self.training_set = dict['training_set']
+        self.training_labels = dict['training_labels']
+        

@@ -1,6 +1,6 @@
 import os
 from numpy import arange, array
-results_folder_path ="/homes/mk306/log/pq"
+results_folder_path ="/home/qri/data/pq"
 configuration_folder_path = os.path.split(os.path.realpath(__file__))[0]+"/"
 ##set to wherever you want the images to be stored
 #images_folder_path = 
@@ -20,7 +20,7 @@ n_sims = 5000
 hardware = False
 limit_lambda_search = False
 weights_on = True
-sampling_fancy = False
+sampling_fancy = True
 
 max_speed = 0.1
 max_stdv = 0.05
@@ -66,10 +66,7 @@ max_counter = max_iter  # Maximum value of counter
 
 ### Regressor and classifier type
 regressor = 'GaussianProcess4'
-#regressor = 'R'
-#regressor = 'KMeansGaussianProcessRegressor'
-#classifier = 'RelevanceVectorMachine2'
-classifier = 'SupportVectorMachine'
+classifier = 'ResourceAwareClassifier'
 Kfolds=5
 ### GPR Regression settings
 regr = 'linear'
