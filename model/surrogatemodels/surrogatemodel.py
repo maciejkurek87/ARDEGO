@@ -984,25 +984,7 @@ class BayesClassSurrogateModel2(BayesClassSurrogateModel):
             
             if self.propa_classifier:
                 EI = EI * labels
-            #time_train = time.time() - time_train
-            #logging.info(time_train)
-            #pdb.set_trace()
-            '''
-            pdb.set_trace()
-            n_sims=2
-            while n_sims <= 20000000:
-                #pdb.set_trace()
-                time_train = time.time()
-                EI = concatenate(CpuStream(n_sims, 1, self.regressor.get_y_best(), miu_mean, miu_s2,randint(0,sys.maxint,random_ints),randint(0,sys.maxint,random_ints),randint(0,sys.maxint,random_ints),randint(0,sys.maxint,random_ints),*lambdass))
-                time_train = time.time() - time_train
-                logging.info(n_sims)
-                logging.info(time_train)
-                n_sims = n_sims * 10
-            
-            pdb.set_trace()
-'''
-            #if sum(EI) == 0.0:
-            #    pdb.set_trace()
+
             return EI.reshape(-1,1)
         
         if local is False:
@@ -1071,24 +1053,45 @@ class BayesClassSurrogateModel2(BayesClassSurrogateModel):
         n_sims = self.configuration.n_sims
         D = len(self.fitness.designSpace)
         if len(miu_set) > 0:
-            try:
-                labels_miu, miu_means, miu_s2s, empty, L  = self.predict(array(miu_set), with_EI=False, raw=True)
-                miu_set = miu_set[labels_miu==1]
-                labels_miu = labels_miu[labels_miu==1]
-                miu_s2s = miu_s2s[labels_miu==1]
-            except: ## this
-                logging.info("something has gone wrong with the mius, trying to retrain the model") #From the looks of it is the 
+            if self.propa_classifier: ## probabilsitic classifier
                 try:
-                    self.train()
                     labels_miu, miu_means, miu_s2s, empty, L  = self.predict(array(miu_set), with_EI=False, raw=True)
+                    miu_set = miu_set[labels_miu > 0.0]
+                    labels_miu = labels_miu[labels_miu > 0.0]
+                    miu_s2s = miu_s2s[labels_miu > 0.0]
+                except: ## this
+                    logging.info("something has gone wrong with the mius, trying to retrain the model") #From the looks of it is the 
+                    try:
+                        self.train()
+                        labels_miu, miu_means, miu_s2s, empty, L  = self.predict(array(miu_set), with_EI=False, raw=True)
+                        miu_set = miu_set[labels_miu > 0.0]
+                        labels_miu = labels_miu[labels_miu > 0.0]
+                        miu_s2s = miu_s2s[labels_miu > 0.0]
+                    except:
+                        logging.info("Didnt work...")
+                        return None
+                if (len(miu_set) == 0 ):
+                    logging.info("All mius predicted to be invalid, wont use any")
+            else:
+                try:
+                    labels_miu, miu_means, miu_s2s, empty, L  = self.predict(array(miu_set), with_EI=False, raw=True)
+                    pdb.set_trace()
                     miu_set = miu_set[labels_miu==1]
                     labels_miu = labels_miu[labels_miu==1]
                     miu_s2s = miu_s2s[labels_miu==1]
-                except:
-                    logging.info("Didnt work...")
-                    return None
-            if (len(miu_set) == 0 ):
-                logging.info("All mius predicted to be invalid, wont use any")
+                except: ## this
+                    logging.info("something has gone wrong with the mius, trying to retrain the model") #From the looks of it is the 
+                    try:
+                        self.train()
+                        labels_miu, miu_means, miu_s2s, empty, L  = self.predict(array(miu_set), with_EI=False, raw=True)
+                        miu_set = miu_set[labels_miu==1]
+                        labels_miu = labels_miu[labels_miu==1]
+                        miu_s2s = miu_s2s[labels_miu==1]
+                    except:
+                        logging.info("Didnt work...")
+                        return None
+                if (len(miu_set) == 0 ):
+                    logging.info("All mius predicted to be invalid, wont use any")
         else:
             miu_means = array([[]])
             miu_s2s = array([[]])
@@ -1116,16 +1119,28 @@ class BayesClassSurrogateModel2(BayesClassSurrogateModel):
                         continue
                 try:
                     labels = self.classifier.predict(z)
-                    if (any(labels!=1.)):
-                        EI.append(array([.0])) ## if any is predicted to be invalid we prevent expensive ei calculation
-                        continue
-                    if len(labels) == 1:
-                        labels, MU, S2, ei, P = self.predict(z)
-                        place(labels,labels != 1.,[0.0]) 
-                        labels = labels.reshape(ei.shape[0],1)
-                        corr_EI = ei * labels
-                        EI.append(-1.0*corr_EI.reshape(1,1))
-                        continue
+                    if self.propa_classifier:
+                        if (any(labels==0.)):
+                            EI.append(array([.0])) ## if any is predicted to be invalid we prevent expensive ei calculation
+                            continue
+                        if len(labels) == 1:
+                            labels, MU, S2, ei, P = self.predict(z)
+                            labels = labels.reshape(ei.shape[0],1)
+                            corr_EI = ei * labels
+                            EI.append(-1.0*corr_EI.reshape(1,1))
+                            continue
+                    else:
+                        if (any(labels!=1.)):
+                            EI.append(array([.0])) ## if any is predicted to be invalid we prevent expensive ei calculation
+                            continue
+                        if len(labels) == 1:
+                            labels, MU, S2, ei, P = self.predict(z)
+                            place(labels,labels != 1.,[0.0]) 
+                            labels = labels.reshape(ei.shape[0],1)
+                            corr_EI = ei * labels
+                            EI.append(-1.0*corr_EI.reshape(1,1))
+                            continue
+
                     zz = vstack((miu_set,z))
                     labels, mean_predict, s2_predict, empty, L = self.predict(zz, with_EI=False, raw=True) ### needs to be raw!
                     
@@ -1377,455 +1392,3 @@ class BayesClassSurrogateModel2(BayesClassSurrogateModel):
         self.classifier.set_state_dictionary(dict["classifier_state_dicts"])
         self.propa_classifier = dict["propa_classifier"]
     
-
-# class DomainSpecificSurrogateModel(BayesClassSurrogateModel):
-
-    # def __init__(self, configuration, controller, fitness):
-        # super(DomainSpecificSurrogateModel, self).__init__(configuration,
-                                                   # controller,
-                                                   # fitness)
-        
-        # self.resource_regressors = []
-        # for i in range(fitness.resources):
-            # self.resource_regressors.add(self.regressor_constructor())
-        # self.classifier = SupportVectorMachineClassifier()
-        # self.propa_classifier = False
-        # self.classifier = self.classifier2
-        # self.retrain_regressor = True
-        # self.regressor = self.regressor_constructor()
-        
-        # self.max_uncertainty = self.max_ei
-        # self.best = None
-        # self.bests_counter = []
-        # self.bests = []
-        # self.best_fitness = None
-        # self.best_parts = []
-        # self.max_mem = 4 ## in GB
-        # ### max cores
-       
-    # def classifier_train(self):
-        # self.classifier.train(bests=self.gets_bests())
-        
-    # def train(self, hypercube=None, propa=0.0):
-        # self.was_trained = True
-        # training_ok = True
-        # if self.retrain_regressor:
-            # if len(self.regressor.training_set) > 100:
-                # logging.info("Regressor training set reached substantial size:" + str(len(self.regressor.training_set)) + " random retrain inbound..")
-                # faith_roll = uniform(0.0,1.0)
-                # if faith_roll < 0.1:
-                    # logging.info("Faith rolled " + str(faith_roll) + " ... retraining")
-                    # training_ok = self.regressor.train() and training_ok
-                # else:
-                    # logging.info("Using old regressor hyperparameter estimation...")
-                    # training_ok = True
-                # self.retrain_regressor = False    
-            # else:    
-                # training_ok = self.regressor.train() and training_ok
-                # self.retrain_regressor = False
-        # else:
-            # logging.info("Regressor training set was not updated... only classifier will be retrained")
-        # if self.classifier.train(bests=self.get_bests_index()) and training_ok:
-            # logging.info("Trained Surrogate Model")
-        # else:
-            # logging.info("Couldnt Train Surrogate Model")
-            # return False
-        
-    # def get_copy(self):
-        # model_copy = BayesClassSurrogateModel2(self.configuration, self.controller, self.fitness)
-        # model_copy.set_state_dictionary(self.get_state_dictionary())
-        # return model_copy
-        
-    # def update_bests(self, part, fitness):
-        # try:
-            # best_counter = len(self.classifier.training_set)
-        # except:
-            # best_counter = 0                
-        # self.bests.append(fitness)
-        # self.best_parts.append(part)
-        # self.bests_counter.append(best_counter)
-        
-    # def get_bests_limit(self, limit=0.0000001):
-        # data = zip(self.best_parts,self.bests)
-        # return [part for (part,fitness) in data if math.fabs((fitness-self.best_fitness)/self.best_fitness)<limit]
-    
-    # def get_bests_index(self, limit=0.000001):
-        # data = zip(self.bests_counter,self.bests)
-        # return [(counter,fitness) for (counter,fitness) in data if math.fabs((fitness-self.best_fitness)/self.best_fitness)<limit]
-    
-    # def gets_bests(self):
-        # data = zip(self.bests_counter,self.bests)
-        # sorted_data = sorted(data, key=lambda tup: tup[1])
-        # if self.configuration.goal == "max":
-            # sorted_data.reverse()
-        # return sorted_data[0:min(5,len(sorted_data))]
-            
-    # def get_valid_set(self):
-        # valid_set = []
-        # for i,d in enumerate(self.classifier.training_labels):
-            # if d == 1.:
-                # valid_set.append(self.classifier.training_set[i])
-        # return valid_set
-        
-    # def add_training_instance(self, part, code, fitness, addReturn, time, resources=None, timing=None):
-        # self.classifier = self.classifier2 ## always switch back to svm after using soft margin
-        # self.propa_classifier = False
-        # code = code[0]
-        # if code == 0:
-            # code = 1.
-        # elif code == 1:
-            # code = 0.
-            
-        # if addReturn[0] == 0: ## only update regressor if the fitness function produced a result
-            # try:
-                # trans_part = self.fitness.transformation_function(part)
-                # #logging.debug("Using tranformation function for the regressor")
-            # except:
-                # trans_part = part
-            # self.regressor.add_training_instance(trans_part, fitness)
-            # self.retrain_regressor = True
-            # if (code == 1.):
-                # logging.info("New possible real best")
-                # if self.best_fitness is None or (fitness > self.best_fitness and (self.configuration.goal == "max")):## maximization
-                    # self.best_fitness = fitness
-                    # self.best = part
-                    # self.regressor.set_y_best(fitness)
-                # if self.best_fitness is None or (fitness < self.best_fitness and (self.configuration.goal == "min")):## minimization
-                    # self.best_fitness = fitness
-                    # self.best = part
-                    # self.regressor.set_y_best(fitness)
-                # self.update_bests(part,fitness)
-            # self.classifier1.add_training_instance(part, code)
-            # self.classifier2.add_training_instance(part, code)
-        # else:
-            # self.classifier1.add_training_instance(part, code)
-            # self.classifier2.add_training_instance(part, code)
-                    
-    # def max_ei_par(self, designSpace, miu_set, llambda, local=None, without_class=False): 
-        # if llambda == 1. and len(miu_set) < 1:
-            # logging.info("Only one worker aviable, using standard ei procedure..")
-            # return self.max_ei(designSpace)
-        # current_w_dir = os.getcwd()
-        # os.chdir('libs/ei_fpga') ### this is not ideal...
-        # stupid_predict_bug = False
-        # max_miu_lambda = 6
-        # mius = len(miu_set)
-        # cores = 2
-        # n_sims=200000
-        # loop_unroll = 5
-        # ####prepare miu template
-        # random_ints = max_miu_lambda * 6 * loop_unroll
-        # if self.configuration.goal == "min":
-            # miu_mean = ones(max_miu_lambda)*10000000000.0
-        # elif self.configuration.goal == "max":
-            # miu_mean = ones(max_miu_lambda)*-10000000000.0
-        # miu_s2 = zeros(max_miu_lambda)
-        
-        # ####prepare lambda template
-        # if self.configuration.goal == "min":
-            # lambdas_mean = ones((max_miu_lambda,100/cores))*10000000000.0
-        # elif self.configuration.goal == "max":
-            # lambdas_mean = ones((max_miu_lambda,100/cores))*-10000000000.0
-        # lambdas_s2 = zeros((max_miu_lambda,100/cores))
-        # lambdas_template = concatenate([lambdas_s2,lambdas_mean],axis=1)
-        
-        # ### prepare mius
-        # mius_done = False
-        # mius_done_counter = 0
-        # if miu_set.size>0:
-            # while (not mius_done) and (mius_done_counter < 10):
-                # try:
-                    # labels_miu, miu_means, miu_s2s, empty, empty  = self.predict(array(miu_set), with_EI=False, raw=True)
-                    # labels_miu = labels_miu.reshape(-1,1)
-                    # labels_miu_copy = copy(labels_miu)
-                    # place(labels_miu_copy,labels_miu_copy != 1.,[0.0]) 
-                    # if without_class: ## makes all valid
-                        # labels_miu_copy = ones(labels_miu_copy.shape)
-                    # miu_s2[0:miu_set.shape[0]] = (miu_s2s*labels_miu_copy).reshape(-1,)
-                    # if self.configuration.goal == "min":
-                        # place(miu_means,labels_miu != 1.,[10000000000.0]) 
-                    # elif self.configuration.goal == "max":
-                        # place(miu_means,labels_miu != 1.,[-10000000000.0]) 
-                    # #miu_s2[0:miu_set.shape[0]] = (miu_s2s*labels_miu_copy).reshape(-1,)
-                    # miu_mean[0:miu_set.shape[0]] = miu_means.reshape(-1,)
-                    # mius_done = True
-                # except:
-                    # logging.info("This stupid predict error... redoing Mius")
-                    # self.regressor.train()
-                    # mius_done = False
-                # mius_done_counter = mius_done_counter + 1
-        # y_best = self.regressor.get_y_best()        
-        # from CpuStream import CpuStream
-        
-        # def g(z_in, n_sims=n_sims):
-            # #pdb.set_trace()
-            # try:
-                # labels, lambda_mean, lambda_s2, empty, empty = self.predict(array(z_in).reshape(-1,len(designSpace)), with_EI=False, raw=True)
-                # labels = labels.reshape(-1,1)
-                # place(labels,labels != 1.,[0.0]) 
-                
-            # except:
-                # logging.info("This stupid predict error...")
-                # stupid_predict_bug = True
-                # return None
-            # if without_class: ## makes all valid
-                # labels = ones(labels.shape)
-            # adjusted_s2 = lambda_s2*labels
-            # if self.configuration.goal == "min":
-                # place(lambda_mean,labels != 1.,[10000000000.0]) 
-            # elif self.configuration.goal == "max":
-                # place(lambda_mean,labels != 1.,[-10000000000.0])             
-            # ####
-            # lambdass = []
-            # for i in range(cores):
-                # lambdas = copy(lambdas_template)
-                # for ii in range(100/cores):
-                    # indexx = i*100/cores+ii*llambda
-                    # lambdas[0:llambda,ii] = adjusted_s2[indexx:indexx+llambda].reshape(-1,)
-                    # lambdas[0:llambda,ii+100/cores] = lambda_mean[indexx:indexx+llambda].reshape(-1,)
-                # lambdass.append(lambdas)
-            # lambdass = concatenate(lambdass)
-            # #pdb.set_trace()
-            # #time_train = time.time()
-            # if self.configuration.goal == "min":
-                # EI = concatenate(CpuStream(n_sims, 0, y_best, miu_mean, miu_s2,randint(0,sys.maxint,random_ints),randint(0,sys.maxint,random_ints),randint(0,sys.maxint,random_ints),randint(0,sys.maxint,random_ints),*lambdass))
-            # elif self.configuration.goal == "max":   
-                # EI = concatenate(CpuStream(n_sims, 1, y_best, miu_mean, miu_s2,randint(0,sys.maxint,random_ints),randint(0,sys.maxint,random_ints),randint(0,sys.maxint,random_ints),randint(0,sys.maxint,random_ints),*lambdass))
-            # #time_train = time.time() - time_train
-            # #logging.info(time_train)
-            # #pdb.set_trace()
-            # '''
-            # pdb.set_trace()
-            # n_sims=2
-            # while n_sims <= 20000000:
-                # #pdb.set_trace()
-                # time_train = time.time()
-                # EI = concatenate(CpuStream(n_sims, 1, self.regressor.get_y_best(), miu_mean, miu_s2,randint(0,sys.maxint,random_ints),randint(0,sys.maxint,random_ints),randint(0,sys.maxint,random_ints),randint(0,sys.maxint,random_ints),*lambdass))
-                # time_train = time.time() - time_train
-                # logging.info(n_sims)
-                # logging.info(time_train)
-                # n_sims = n_sims * 10
-            # '''
-            # #pdb.set_trace()
-            # #if sum(EI) == 0.0:
-            # #    pdb.set_trace()
-            # return EI.reshape(-1,1)
-        
-        # if local is None:
-            # best = self.get_best()[0]*int(llambda)
-            # results, ei_val = ei_optimizers.optimize(g, designSpace*llambda, GEN=100*llambda*len(designSpace), surrogate=self, set_best=self.get_best()[0]*int(llambda))
-            # improvment_l = math.fabs(ei_val[0]/(loop_unroll*n_sims))
-            # improvment = (math.exp(improvment_l)-1.)*100.0
-            # if improvment < 0.0:
-                # os.chdir(current_w_dir)
-                # return None
-            # logging.info("Predicted improvment " + str(improvment) + "%")
-            # if stupid_predict_bug:
-                # logging.info("Stupid predict error... retraining regressor and rerunning optimizer (!MIGHT LOOP!)")
-                # pdb.set_trace()
-                # self.regressor.train()
-                # return self.max_ei_par(designSpace, miu_set, llambda)
-            # else: 
-                # os.chdir(current_w_dir)
-                # return results
-        # else:  ## LOCAL exhaustive search
-            # batch_size = 100
-            # max_counter = len(local)
-            # counter = 0 
-            # best_counter = 0
-            # best_ei = [0.0]
-            # best = None
-            # while counter < max_counter:
-                # eval = min(batch_size,max_counter-counter)
-                # #pdb.set_trace()
-                # if eval<batch_size:
-                    # empty = [zeros(len(designSpace))] * (batch_size-eval)
-                    # local = local + empty
-                # EI = g(local[counter:counter+batch_size]) ## append zeros
-                # if EI is None:
-                    # pdb.set_trace()
-                # else:
-                    # best_in_batch = argmin(EI[0:eval])
-                    # if EI[best_in_batch] < best_ei:
-                        # best = local[counter:counter+batch_size][best_in_batch]
-                        # best_ei = EI[best_in_batch]
-                        # best_counter = counter
-                    # counter = counter + eval
-            # #pdb.set_trace()
-            # if stupid_predict_bug:
-                # logging.info("Stupid predict error... retraining regressor and rerunning optimizer (!MIGHT LOOP!)")
-                # pdb.set_trace()
-                # self.regressor.train()
-                # return self.max_ei_par(designSpace, miu_set, llambda, local)
-            # else: 
-                # os.chdir(current_w_dir)
-                # improvment_l = math.fabs(best_ei[0]/(loop_unroll*n_sims))
-                # improvment = (math.exp(improvment_l)-1)*100.0#/self.regressor.get_y_best(raw=True)
-                # logging.info("Predicted improvment " + str(improvment) + "% " + str(improvment_l))
-                # if improvment < 0.0:
-                    # logging.info("Improvment under 1%, returning None :" + str(improvment) + "%")
-                    # return None
-                # return best
-                   
-    # def max_ei_par_soft(self,zz,miu_s2,miu_mean,n_sims=100):
-        # EI = []
-        # for z in zz:
-            # labels, lambda_mean, lambda_s2, empty, empty = self.predict(z, with_EI=False, raw=True) ### needs to be raw!
-            # labels = labels.reshape(-1,1)
-            # place(labels,labels != 1.,[0.0]) 
-            # if self.configuration.goal == "min":
-                # place(lambda_mean,labels != 1.,[10000000000.0]) 
-            # elif self.configuration.goal == "max":
-                # place(lambda_mean,labels != 1.,[-10000000000.0])      
-            # result = -1.*(self.regressor.e_multi(miu_s2, miu_mean, lambda_s2*labels, lambda_mean, n_sims = n_sims))
-            # EI.append(result)
-        # return EI
-                   
-    # def max_ei(self, designSpace):
-
-        # #result = self.brute_search(designSpace)
-        # #logging.info("brute force predicts : " + self.brute_search(designSpace))
-            
-        # if self.configuration.search=='brute': # brute search
-            # return self.brute_search(designSpace)
-        # elif False: ## gradient descent, exhasstive is too expensive...
-            # return self.gradient_minimizer(designSpace)
-        # else: ### pso search
-            # return self.pso_search(designSpace)
-            
-    # def local_brute_search(self, designSpace, point, radius=1., npts=10):
-        # D = len(designSpace)
-        # n_bins = npts*ones(D)
-        
-        # ## define the space
-        
-        # steps = []
-        # for counter, d in enumerate(designSpace):
-            # if d["type"] == "discrete":
-                # n_bins[counter] = d["step"]
-            # else:
-                # n_bins[counter] = 1./npts
-        # bounds = [(maximum(point[i] - n_bins[i]* radius,d["min"]), minimum(point[i] + n_bins[i]*radius,d["max"])) for i,d in enumerate(designSpace)] 
-        
-        # #current_max = -1.
-        # #current_max_cord = None
-        # ### preapring search grid... used a lot of memory for large spaces
-        # result = mgrid[[slice(row[0], row[1], int((row[1]-row[0])/n_bins[i]+1)*1.0j) for i,row in enumerate(bounds)]]
-        # z = result.reshape(D,-1).T
-        # ### perform prediction
-        # labels, MU, S2, EI, P = self.predict(z)
-        # if sum(EI) == 0.0:
-            # logging.info("again didnt find shitTTT...")
-            # return None
-            
-        # temp_max_cord = argmax(EI)
-        # current_max = EI[temp_max_cord]
-        # current_max_cord = z[temp_max_cord]
-        # return current_max_cord
-            
-    # def brute_search(self, designSpace, npts=10, hypercube = None):
-        # D = len(designSpace)
-        # n_bins = npts*ones(D)
-        
-        # ## define the space
-        
-        # num_points = 1 
-        # mb_per_point = 1
-        # space_def = []
-        # steps = []
-        # for counter, d in enumerate(designSpace):
-            # if d["type"] == "discrete":
-                # num_points = num_points * int((d["max"] - d["min"])/ d["step"])
-                # n_bins[counter] = int((d["max"] - d["min"])/ d["step"]) + 1.0
-                # steps.append(d["step"])
-            # else:
-                # num_points = num_points * npts
-                # n_bins[counter] = npts
-                # steps.append(int((d["max"] - d["min"])/ npts))
-            # bounds = [(d["min"],d["max"]) for d in designSpace] 
-        # #current_max = 0.
-        # #current_max_cord = None
-        
-        # ### preapring search grid... used a lot of memory for large spaces
-        
-        # result = mgrid[[slice(row[0], row[1], n*1.0j) for row,n in zip(bounds, n_bins)]]
-        # z = result.reshape(D,-1).T
-        # z = [zz for zz in z if not self.contains_training_instance(zz)]
-        # ### perform prediction
-        # labels, MU, S2, EI, P = self.predict(z)
-        # labels = labels.reshape(EI.shape[0],1)
-        # place(labels,labels != 1.,[0.0]) 
-        # corr_EI = EI * labels
-        
-        # ### pos processing
-        
-        # if sum(corr_EI) == 0.0:
-            # logging.info("didnt find shit...")
-            # return None
-       
-        # temp_max_cord = argmax(corr_EI)
-        
-        # #if corr_EI[temp_max_cord] > current_max:
-        # current_max = corr_EI[temp_max_cord]
-        # logging.info("Maximum expected improvment: " + str(current_max) + " y_best: "  + str(self.regressor.get_y_best()))
-        # #if math.fabs(current_max/self.regressor.get_y_best()) < 0.01:
-        # #    return None
-        # current_max_cord = z[temp_max_cord]
-        # return current_max_cord
-    
-    # def pso_search(self, designSpace):
-        # def g(z):
-            # labels, MU, S2, EI, P = self.predict(array(z), with_EI=True)
-            # labels = labels.reshape(EI.shape[0],1)
-            # place(labels,labels != 1.,[0.0]) 
-            # result = -1.*(EI * labels)
-            # return result
-        # return array(ei_optimizers.optimize(g, designSpace, GEN=100, surrogate=self, set_best=self.get_best()[0])[0])
-        
-    # def gradient_minimizer(self, designSpace):
-        # bounds = [(d["min"],d["max"]) for d in designSpace] 
-        # def f(z):
-            # labels, MU, S2, EI, P = self.predict(array([z]), with_EI=True)
-            # labels = labels.reshape(EI.shape[0],1)
-            # place(labels,labels != 1.,[0.0])      
-            # return (EI * labels)[0]
-            
-        # ### find valid seeds
-        # valid_seeds = []
-        # for i in xrange(0,10000):
-            # part = [round(uniform(d["min"],d["max"])) for d in designSpace]
-            
-            # if f(part) > 0.:
-                # valid_seeds.append(part)
-            
-        # logging.info('Finished finding valid seeds')
-        
-        # def g(z):
-            # labels, MU, S2, EI, P = self.predict(array([z]), with_EI=True)
-            # labels = labels.reshape(EI.shape[0],1)
-            # place(labels,labels == -1.,[0.0]) 
-            # result = -1.*(EI * labels)[0]
-            # return result
-        
-        # best_so_far = None
-        # best_so_far_val = 0.0
-        # res = []
-        # if len(valid_seeds) == 0:
-            # logging.info("Valid seeds is empty:")
-            # import pdb
-            # pdb.set_trace()
-        # for x0 in valid_seeds:
-            # res = minimize(g, x0, method='L-BFGS-B', bounds = bounds,  options={'gtol': 1e-6, 'disp': False})
-            # if res.fun > best_so_far_val:
-                # best_so_far = res.x
-        # return best_so_far
-            
-            
-    # def get_state_dictionary(self):
-        # return {"regressor_state_dict" : self.regressor.get_state_dictionary(), "classifier1_state_dicts" : self.classifier1.get_state_dictionary(), "classifier2_state_dicts" : self.classifier2.get_state_dictionary(), "propa_classifier": self.propa_classifier}
-        
-    # def set_state_dictionary(self, dict):
-        # self.regressor.set_state_dictionary(dict["regressor_state_dict"])
-        # self.classifier1.set_state_dictionary(dict["classifier1_state_dicts"])
-        # self.classifier2.set_state_dictionary(dict["classifier2_state_dicts"])
-        # self.propa_classifier = dict["propa_classifier"]

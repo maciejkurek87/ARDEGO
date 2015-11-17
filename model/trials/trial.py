@@ -1636,7 +1636,7 @@ class P_ARDEGO_Trial(Trial):
     def sample_plan(self):
         design_space = self.get_design_space()
         D = len(design_space)
-        F = D * 5
+        F = D * 10
         allok = True
         try:
             self.get_configuration().old_run_dir ## gonna break if its not there

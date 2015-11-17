@@ -734,15 +734,16 @@ class ResourceAwareClassifier(Classifier):
                 self.resourceregressors.append((GaussianProcessRegressor4(controller, conf, fitness),key))
             if rc["type"] == "bin":
                 self.binaryresourceclassifiers.append((SupportVectorMachineClassifier(fitness, conf),key))
+        self.item_count = len(self.fitness.resource_class)
         
     def add_training_instance(self, part, label):      
         super(ResourceAwareClassifier, self).add_training_instance(part, label)
         re_output = self.fitness.fitnessFunc(part, {}, return_resource = True)
         for reg, key in self.posresourceregressors:
-            if not (re_output[key] is None):
+            if not (re_output[key][0] is None):
                 reg.add_training_instance(part, re_output[key])
         for reg, key in self.resourceregressors:
-            if not (re_output[key] is None):
+            if not (re_output[key][0] is None):
                 reg.add_training_instance(part, re_output[key])
         for clas, key in self.binaryresourceclassifiers:
             #pdb.set_trace()
@@ -770,22 +771,33 @@ class ResourceAwareClassifier(Classifier):
             logging.error('Classifier training failed.. ' + str(e))
             return False
 
-    def predict(self, z):
+    def predict(self, z, index=None, probs= True):
         output = 1.0
-        
+        counter = 0
         for reg, key in self.posresourceregressors:
-            mu, s2, bla, bla2 = reg.predict(z, False, False)
-            low = norm.cdf(self.fitness.resource_class[key]["lower_limit"], loc=mu, scale=s2)
-            high = norm.cdf(self.fitness.resource_class[key]["higher_limit"], loc=mu, scale=s2)
-            output = output * (high - low)
-            pdb.set_trace()
+            if (index is None) or counter == index:
+                mu, s2, bla, bla2 = reg.predict(z, False, False)
+                low = norm.cdf(self.fitness.resource_class[key]["lower_limit"], loc=mu, scale=s2)
+                high = norm.cdf(self.fitness.resource_class[key]["higher_limit"], loc=mu, scale=s2)
+                output = output * (high - low)
+                if not probs:
+                    return mu
+            counter = counter + 1
         for reg, key in self.resourceregressors:
-            mu, s2, bla, bla2 = reg.predict(z, False, False)
-            low = norm.cdf(self.fitness.resource_class[key]["lower_limit"], loc=mu, scale=s2)
-            high = norm.cdf(self.fitness.resource_class[key]["higher_limit"], loc=mu, scale=s2)
-            output = output * (high - low)
+            if (index is None) or counter == index:
+                mu, s2, bla, bla2 = reg.predict(z, False, False)
+                low = norm.cdf(self.fitness.resource_class[key]["lower_limit"], loc=mu, scale=s2)
+                high = norm.cdf(self.fitness.resource_class[key]["higher_limit"], loc=mu, scale=s2)
+                output = output * (high - low)
+                if not probs:
+                    return mu
+            counter = counter + 1
         for clas, key in self.binaryresourceclassifiers: 
-            output = output * clas.predict(z)
+            if (index is None) or counter == index:
+                output = output * clas.predict(z).reshape(-1,1)
+                if not probs:
+                    return clas.predict(z).reshape(-1,1)
+            counter = counter + 1
         return output
         #try:
         #    
@@ -798,18 +810,34 @@ class ResourceAwareClassifier(Classifier):
             
     ## TODO - come up with a smart way of storing these...
     def get_state_dictionary(self):
-        dict = {'posresourceregressors' : self.posresourceregressors,
-                'resourceregressors': self.resourceregressors,
-                'binaryresourceclassifiers': self.binaryresourceclassifiers,
+        posresourceregressors = {}
+        resourceregressors = {}
+        binaryresourceclassifiers = {}
+        for reg, key in self.posresourceregressors:
+            posresourceregressors[key] = reg.get_state_dictionary()
+        for reg, key in self.resourceregressors:
+            resourceregressors[key] = reg.get_state_dictionary()
+        for clas, key in self.binaryresourceclassifiers: 
+            binaryresourceclassifiers[key] =  clas.get_state_dictionary()
+        dict = {'posresourceregressors' : posresourceregressors,
+                'resourceregressors': resourceregressors,
+                'binaryresourceclassifiers': binaryresourceclassifiers,
                 'training_set' : self.training_set,
-                'training_labels': self.training_labels}
+                'training_labels': self.training_labels,
+                'item_count':self.item_count}
         return dict
         
     ###
     def set_state_dictionary(self, dict):
-        self.posresourceregressors = dict['posresourceregressors']
-        self.resourceregressors = dict['resourceregressors']
-        self.binaryresourceclassifiers = dict['binaryresourceclassifiers']
+    
+        for reg, key in self.posresourceregressors:
+            reg.set_state_dictionary(dict['posresourceregressors'][key])
+        for reg, key in self.resourceregressors:
+            reg.set_state_dictionary(dict['resourceregressors'][key])
+        for reg, key in self.binaryresourceclassifiers:
+            reg.set_state_dictionary(dict['binaryresourceclassifiers'][key])
+        
         self.training_set = dict['training_set']
         self.training_labels = dict['training_labels']
+        self.item_count = dict["item_count"]
         

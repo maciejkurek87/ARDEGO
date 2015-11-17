@@ -499,7 +499,7 @@ class ImageViewer(object):
         D_0 = len(dim_grid[0])
         if not (dim_grid[1] is None):
             D_1 = len(dim_grid[1])
-            data = [[[0.0] * D_1 for i in range(D_0)] for ii in range(5)]
+            data = [[[0.0] * D_1 for i in range(D_0)] for ii in range(5 + d['classifier'].item_count * 2)]
             for i in range(D_0):
                 for j in range(D_1):
                     #if d["propa_classifier"]:
@@ -522,11 +522,14 @@ class ImageViewer(object):
                             meta_plots.append(meta_plotss)
                             data[3][i][j] = reshape(d['classifier'].predict([append(a,[dim_grid[0][i]]) for a in d['z']]),-1)
                             data[4][i][j] = data[3][i][j]
+                            for iii in range(d['classifier'].item_count):
+                                data[5 + iii][i][0] = reshape(d['classifier'].predict([append(a,[dim_grid[0][i]]) for a in d['z']], iii),-1)
+                                data[5 + d['classifier'].item_count + iii][i][0] = reshape(d['classifier'].predict([append(a,[dim_grid[0][i]]) for a in d['z']], iii, False),-1)
                     except:
                         pass
         else:
             D_1 = 1
-            data = [[[0.0] * D_1 for i in range(D_0)] for ii in range(5)]
+            data = [[[0.0] * D_1 for i in range(D_0)] for ii in range(5 + d['classifier'].item_count * 2)]
             for i in range(D_0):
                 results = d['regressor'].predict([append(a,[dim_grid[0][i]]) for a in d['z']], with_EI=True)
                 for k in range(3):
@@ -546,6 +549,9 @@ class ImageViewer(object):
                         meta_plots.append(meta_plotss)
                         data[3][i][0] = reshape(d['classifier'].predict([append(a,[dim_grid[0][i]]) for a in d['z']]),-1)
                         data[4][i][0] = data[2][i][0] * data[3][i][0]
+                        for iii in range(d['classifier'].item_count):
+                            data[5 + iii][i][0] = reshape(d['classifier'].predict([append(a,[dim_grid[0][i]]) for a in d['z']], iii),-1)
+                            data[5 + d['classifier'].item_count + iii][i][0] = reshape(d['classifier'].predict([append(a,[dim_grid[0][i]]) for a in d['z']], iii, False),-1)
                 except:
                     pass
         logging.debug("Prediction done passed...")
@@ -555,12 +561,17 @@ class ImageViewer(object):
         ImageViewer.render_3_4d(figure, "MU", d, graph_dict, "$\hat{f}(\mathbf{x})$", data[0], fitness=d['fitness'],lognorm=True)#, mask=mask)
         ImageViewer.render_3_4d(figure, "S2", d, graph_dict, "$\sigma(\mathbf{x})$", data[1])
         ImageViewer.render_3_4d(figure, "EI", d, graph_dict, "EI", data[2],lognorm=True)
-        try:
-            if d["propa_classifier"]:
-                ImageViewer.render_3_4d(figure, "PR_" + str(d['classifier'].best_gamma), d, graph_dict, "PROPA", data[3], meta_plots=meta_plots)
-                ImageViewer.render_3_4d(figure, "dirtyEI", d, graph_dict, "dirtyEI", data[4],lognorm=True, meta_plots=meta_plots)
-        except:
-            pass
+        #try:
+        if d["propa_classifier"]:
+            ImageViewer.render_3_4d(figure, "PR", d, graph_dict, "PROPA", data[3],lognorm=True)
+            ImageViewer.render_3_4d(figure, "dirtyEI", d, graph_dict, "dirtyEI", data[4],lognorm=True)
+            for iii in range(d['classifier'].item_count):
+                print len(data[5 + iii][0][0])
+                print len(data[5 + iii + d['classifier'].item_count][0][0])
+                ImageViewer.render_3_4d(figure, "prob_resource_" + str(iii), d, graph_dict, "prob_resource_" + str(iii), data[5 + iii],lognorm=True)
+                ImageViewer.render_3_4d(figure, "resource_" + str(iii), d, graph_dict, "resource_" + str(iii), data[5 + iii + d['classifier'].item_count],lognorm=True)
+        #except Exception, e:
+        #    logging.info("Propa classifier failed: " + str(e))
             
     @staticmethod
     def plot_MU_S2_EI(figure, d):
@@ -583,7 +594,7 @@ class ImageViewer(object):
             ImageViewer.render_2d(figure, d, graph_dict, "$\sigma(\mathbf{x})$", data=data, fitness=d['fitness'], maxVal=data.max(),minVal=data.min())
 
     @staticmethod
-    def plot_fitness_function_grid(figure, d):
+    def plot_fitness_function_grid(figure, d, index=None):
         
         dim_grid = d["dim_grid"]
         fitness = d['fitness']
@@ -598,12 +609,18 @@ class ImageViewer(object):
             mask = [[0.0] * D_1 for i in range(D_0)]
             for i in range(D_0):
                 for j in range(D_1):
-                    try: 
-                        data[i][j] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i],dim_grid[1][j]]), d['fitness_state'])[0][0][0] for a in d['z']])
-                        mask[i][j] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i],dim_grid[1][j]]), d['fitness_state'])[0][1][0] for a in d['z']])
-                    except:
-                        data[i][j] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i],dim_grid[1][j]]))[0][0] for a in d['z']]) ###no fitness state
-                        mask[i][j] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i],dim_grid[1][j]]))[1][0] for a in d['z']]) ###no fitness state
+                    if index is None:
+                        try: 
+                            data[i][j] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i],dim_grid[1][j]]), d['fitness_state'])[0][0][0] for a in d['z']])
+                            mask[i][j] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i],dim_grid[1][j]]), d['fitness_state'])[0][1][0] for a in d['z']])
+                        except:
+                            data[i][j] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i],dim_grid[1][j]]))[0][0] for a in d['z']]) ###no fitness state
+                            mask[i][j] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i],dim_grid[1][j]]))[1][0] for a in d['z']]) ###no fitness state
+                    else:
+                        try: 
+                            data[i][j] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i],dim_grid[1][j]]), d['fitness_state'], True)[index][0] for a in d['z']])
+                        except:
+                            data[i][j] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i],dim_grid[1][j]]), True)[index][0] for a in d['z']]) ###no fitness state
         else:
             D_1 = 1
             data = [[0.0] * D_1 for i in range(D_0)]
@@ -611,16 +628,30 @@ class ImageViewer(object):
             #logging.info("----" + str(D_0) + '   ' + str(D_1))
             #logging.info(str(data[0]))
             for i in range(D_0):
-                try: 
-                    data[i][0] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i]]), d['fitness_state'])[0][0][0] for a in d['z']])
-                    mask[i][0] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i]]), d['fitness_state'])[0][1][0] for a in d['z']])
-                except Exception,e:
-                    data[i][0] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i]]))[0][0] for a in d['z']]) ###no fitness state
-                    mask[i][0] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i]]))[1][0] for a in d['z']]) ###no fitness state
+                if index is None:
+                    try: 
+                        data[i][0] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i]]), d['fitness_state'])[0][0][0] for a in d['z']])
+                        mask[i][0] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i]]), d['fitness_state'])[0][1][0] for a in d['z']])
+                    except Exception,e:
+                        data[i][0] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i]]))[0][0] for a in d['z']]) ###no fitness state
+                        mask[i][0] = array([fitness.fitnessFunc(append(a,[dim_grid[0][i]]))[1][0] for a in d['z']]) ###no fitness state
+                else:
+                    try: 
+                        data[i][0] =  [fitness.fitnessFunc(append(a,[dim_grid[0][i]]), d['fitness_state'], True)[index][0] for a in d['z']]
+                        data[i][0] = [0.0 if a is None else a for a in data[i][0]]
+                        data[i][0] = array(data[i][0])
+                    except Exception,e:
+                        print str(e)
+                        data[i][0] = [fitness.fitnessFunc(append(a,[dim_grid[0][i]]), True)[index][0] for a in d['z']] ###no fitness state
+                        data[i][0] = [0.0 if a is None else a for a in data[i][0]]
+                        data[i][0] = array(data[i][0])
                     
         logging.info("Fitness prepared")        
         graph_dict = d['all_graph_dicts']['Fitness']
-        ImageViewer.render_3_4d(figure, "Plotting fitness function grid", d, graph_dict, "fx", data,lognorm=True, mask=mask, fitness=d['fitness'])    
+        if index is None:
+            ImageViewer.render_3_4d(figure, "Plotting fitness function grid", d, graph_dict, "fx", data,lognorm=True, mask=mask, fitness=d['fitness'])    
+        else:
+            ImageViewer.render_3_4d(figure, "Plotting resource " + str(index), d, graph_dict, "rx_" + str(index), data,lognorm=True)    
                 
     @staticmethod
     def plot_fitness_function(figure, d):
@@ -711,7 +742,7 @@ class MLOImageViewer(ImageViewer):
                 print "KURWAAAAAAAAAAAAAAAAAAAAAA"
                 if False:
                     MLOImageViewer.plot_design_space(figure, dictionary)
-                if False:
+                if True:
                     ImageViewer.plot_MU_S2_EI(figure, dictionary)
                 if True:#dictionary['all_graph_dicts']['Fitness']['generate']:
                     ImageViewer.plot_fitness_function(figure, dictionary)
@@ -776,7 +807,7 @@ class MLOImageViewer(ImageViewer):
                     MLOImageViewer.plot_fitness_function_grid(figure, dictionary)
                 if False:#dictionary['all_graph_dicts']['DesignSpace']['generate']:
                     mask = MLOImageViewer.plot_design_space_grid(figure, dictionary)
-                if False:
+                if True:
                     MLOImageViewer.plot_MU_S2_EI_grid(figure, dictionary, mask=mask)
                 if False:
                     MLOImageViewer.plot_cost_function_3_4d(figure, dictionary)
@@ -1832,10 +1863,12 @@ class MonteCarlo_ImageViewer(ImageViewer):
             
                 if True:#dictionary['all_graph_dicts']['Fitness']['generate']:
                     ImageViewer.plot_fitness_function_grid(figure, dictionary)
+                    for index in range(len(dictionary['fitness'].resource_class)):
+                        ImageViewer.plot_fitness_function_grid(figure, dictionary, index)
                 if False:#dictionary['all_graph_dicts']['DesignSpace']['generate']:
                     mask = MLOImageViewer.plot_design_space_grid(figure, dictionary)
-                if False:
-                    MLOImageViewer.plot_MU_S2_EI_grid(figure, dictionary, mask)
+                if True:
+                    MLOImageViewer.plot_MU_S2_EI_grid(figure, dictionary, None)
             else:
                 logging.info("We only support visualization of 2, 3 and 4 dimensional spaces")
 

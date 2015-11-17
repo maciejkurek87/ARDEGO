@@ -6,9 +6,10 @@ from deap import base
 from deap import creator
 from deap import tools
 
+import itertools
 from numpy import *
 from copy import deepcopy 
-from numpy.random import uniform, seed,rand
+from numpy.random import uniform, seed,rand, normal
 
 from sklearn.gaussian_process import GaussianProcess
 from sklearn import svm
@@ -69,6 +70,11 @@ designSpace.append({"min":4.0,"max":53.0,"step":1.0,"type":"discrete","smin":-5.
 designSpace.append( {"min":80.0,"max":120.0,"step":1.0,"type":"discrete","smin":-5.0,"smax":5.0, "set":"s"})
 designSpace.append({"min":1.0,"max":4.0,"step":1.0,"type":"discrete","smin":-2.0,"smax":2.0, "set":"h"})      
 
+resource_class = {0:{"type":"logreg","name":"bram","lower_limit":0.0,"higher_limit":100.0},
+                  1:{"type":"logreg","name":"lut","lower_limit":0.0,"higher_limit":100.0},
+                  2:{"type":"logreg","name":"ff","lower_limit":0.0,"higher_limit":100.0},
+                  3:{"type":"bin", "name":"timing"},
+                  4:{"type":"bin", "name":"par"}}
         
 dist_map = {0:"log", 1:"norm", 2:"norm", 3:"uni", 4:"norm"}
 dist_params_map = {0:(0.82069062921168601, 143.6787370361115, 134.47330375752006), 1:(561.0, 0.0), 2:(1306.3009708737864, 493.22056026388299), 3:(45.0,206.0), 4:(1337.52, 473.07708631892098)}
@@ -118,7 +124,7 @@ allData=None
 def get_z_axis_name():
     return "Throughput ($\phi_{int}$)"
     
-def fitnessFunc(particle, state):
+def fitnessFunc(particle, state, return_resource = False):
     global allData
     #print particle
     if not allData:
@@ -140,24 +146,32 @@ def fitnessFunc(particle, state):
     
     ##resource prediciton
     resource_util = max([allData[-1][cores][mw][freq],allData[-2][cores][mw][freq],allData[-3][cores][mw][freq]])
-        
+    
     if resource_util > 100.0 or ( mw > 41 and cores == 1) or ( mw > 29 and cores == 2) or ( mw > 14 and cores == 3) or ( mw > 8 and cores == 4) :
+        code = 3
         cost = predict_uniform(70.0, 100.0)
-        return ((array([maxvalue]), array([5]),array([1]), cost), state)
         
-    #print allData[mw][df][cores], code, isValid    
-    ### overmapping error
-    #pdb.set_trace()
-    if code == 1: ## timing
-        return ((array([maxvalue]), array([1]),array([1]), cost), state)
-    elif code == 2: ## MPR failed
-        return ((array([maxvalue]), array([2]),array([1]), cost), state)
-    elif code == 3: ## overmapping
-        return ((array([maxvalue]), array([3]),array([1]), cost), state)
-    elif code == 4: ## exit code 30
-        return ((array([maxvalue]), array([4]),array([1]), cost), state)
-    else: ## code 0, ok
-        return ((throughput, array([0]),array([0]), cost), state)
+    if return_resource :
+        ##resource_class = {0:["logreg","bram","g"],1:["logreg","lut","g"],2:["logreg","ff","g"],3:["bin", "timing","a"],4:["bin", "par","a"]}
+        if code == 0: ## timing
+            return [array([allData[-1][cores][mw][freq]]), array([allData[-2][cores][mw][freq]]), array([allData[-3][cores][mw][freq]]), [0], [0]]
+        else :
+            return [[None], [None], [None], array([code == 1]), array([code == 2])]
+    else:
+            
+        #print allData[mw][df][cores], code, isValid    
+        ### overmapping error
+        #pdb.set_trace()
+        if code == 1: ## timing
+            return ((array([maxvalue]), array([1]),array([1]), cost), state)
+        elif code == 2: ## MPR failed
+            return ((array([maxvalue]), array([2]),array([1]), cost), state)
+        elif code == 3: ## overmapping
+            return ((array([maxvalue]), array([3]),array([1]), cost), state)
+        elif code == 4: ## exit code 30
+            return ((array([maxvalue]), array([4]),array([1]), cost), state)
+        else: ## code 0, ok
+            return ((throughput, array([0]),array([0]), cost), state)
 
 ## state, do we have bitstream in the reopi?
 def getCost(cores, mw, freq, code, bit_stream_repo):
@@ -406,7 +420,7 @@ def my_interpolate():
         #pdb.set_trace()
         #plot_hist(array(Y))
     
-        
+    
     points_n = array(points)  ### all the points from which we can interpolate
     values_n = array(values)  ### the data corresponding to those points
     all_results.insert(0,griddata(points_n, values_n[:,0], (grid_x, grid_y, grid_z), method='nearest'))
@@ -448,8 +462,12 @@ def my_interpolate():
                         all_results[1][k - min_cores][i - min_prec][j - min_freq] = array([2.0])
                     
     for i in range(1,len(row_4)):
-            data = griddata(points_n, values_n[:,i], (grid_x, grid_y, grid_z), method='linear')
-            all_results.append(data)
+        data_l = griddata(points_n, values_n[:,i], (grid_x, grid_y, grid_z), method='linear')
+        data_n = griddata(points_n, values_n[:,i], (grid_x, grid_y, grid_z), method='nearest')
+        data = where(isnan(data_l),data_n,data_l)
+        all_results.append(data + normal(0, data.mean()/100.0, data.shape))
+                    
+    
                     
     return all_results
                 

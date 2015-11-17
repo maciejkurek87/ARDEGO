@@ -20,7 +20,7 @@ n_sims = 5000
 hardware = False
 limit_lambda_search = False
 weights_on = True
-sampling_fancy = True
+sampling_fancy = False
 
 max_speed = 0.1
 max_stdv = 0.05
@@ -33,7 +33,7 @@ M = 10
 trials_type ="P_ARDEGO_Trial"
 surrogate_type ="bayes2"
 
-parall = 2
+parall = 1
 xxx = parall
 if xxx == 6:
 	max_fitness = 150.0
