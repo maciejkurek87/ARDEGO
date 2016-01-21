@@ -2,9 +2,9 @@ import logging
 
 import sys
 if sys.version_info > (2, 6):
-    from classifiers import Classifier, SupportVectorMachineClassifier, ResourceAwareClassifier
+    from classifiers import Classifier, SupportVectorMachineClassifier, ResourceAwareClassifier, DummyClassifier
 else:
-    from classifiers import Classifier, SupportVectorMachineClassifier, RelevanceVectorMachineClassifier, RelevanceVectorMachineClassifier2, ResourceAwareClassifier
+    from classifiers import Classifier, SupportVectorMachineClassifier, RelevanceVectorMachineClassifier, RelevanceVectorMachineClassifier2, ResourceAwareClassifier, DummyClassifier
     
 from regressors import Regressor, GaussianProcessRegressor, GaussianProcessRegressor4
 
@@ -149,6 +149,8 @@ class ProperSurrogateModel(SurrogateModel):
                                                    
         if configuration.classifier == 'SupportVectorMachine':
             self.classifier = SupportVectorMachineClassifier(fitness, configuration)
+        elif configuration.classifier == "DummyClassifier":
+            self.classifier = DummyClassifier(fitness, configuration)
         else:
             logging.error('Classifier type ' + str(configuration.classifier) + '  not found')
         self.regressor = self.regressor_constructor()

@@ -15,9 +15,9 @@ $fitness_file = $run_dir."fitness_script.py";
 
 $sampling = "no";
 $m = 10;
-$results_folder = "/data/mk306/extra3_pso_${fitnes_function}_params_${sampling}_sample_m_${m}";
+$results_folder = "/home/qri/data/extra6_pso_${fitnes_function}_params_${sampling}_sample_m_${m}";
 system("rm -Rf $results_folder");
-$parallelism = 3;
+$parallelism = 1;
 system("mkdir ".$results_folder); 
 $pid = 1;
 for ($i=0; $i < $parallelism - 1; $i++) {
@@ -34,8 +34,8 @@ if ($pid) {
 sleep($i * 10);
 $epoch = time_since_epoch();
 chomp($epoch);
-$tempfile = "/data/mk306/temp_pso_${fitnes_function}_${epoch}_${sampling}_${m}.txt";
-$tempfolder = "/data/mk306/extra2_pso_${fitnes_function}_${sampling}_${m}_${epoch}";
+$tempfile = "/home/qri/data/temp_pso_${fitnes_function}_${epoch}_${sampling}_${m}.txt";
+$tempfolder = "/home/qri/data/extra2_pso_${fitnes_function}_${sampling}_${m}_${epoch}";
 system('mkdir '.$tempfolder); 
 system("cp -Rf * $tempfolder");
 chdir $tempfolder;
@@ -44,6 +44,7 @@ system("echo `pwd`");
 modify('results_folder_path =', 'results_folder_path ="'.$results_folder.'"', $config_file);
 modify("trials_type =", 'trials_type =\"PSOTrial\"', $config_file);
 modify("surrogate_type =", 'surrogate_type ="proper"', $config_file);
+modify("classifier =", 'classifier = "DummyClassifier"', $config_file);
 modify("trials_count =", "trials_count = 20", $config_file);
 modify("sample_on =", 'sample_on = "no"', $config_file);
 modify('corr =', 'corr = "anisotropic"', $config_file);
@@ -59,8 +60,8 @@ foreach (@kernel) {
     modify($kernel_tag, $_, $config_file);
     $max_stdv_tag  = 'max_stdv =';
     $min_stdv_tag  = 'min_stdv =';
-    #@stdv = ('max_stdv = 0.01', 'min_stdv = 0.01'); 
-    @stdv = ('max_stdv = 0.01', 'min_stdv = 0.01', 'max_stdv = 0.1', 'min_stdv = 0.1','max_stdv = 0.05', 'min_stdv = 0.05'); 
+    @stdv = ('max_stdv = 0.01', 'min_stdv = 0.01'); 
+    #@stdv = ('max_stdv = 0.01', 'min_stdv = 0.01', 'max_stdv = 0.1', 'min_stdv = 0.1','max_stdv = 0.05', 'min_stdv = 0.05'); 
     foreach (@tuple = splice(@stdv,0,2); @tuple; @tuple = splice(@stdv,0,2)) {
         my ($max_stdv, $min_stdv) = @tuple;
         modify($max_stdv_tag, $max_stdv, $config_file);

@@ -27,7 +27,7 @@ toolbox = base.Toolbox()
 
 from ..surrogatemodels.surrogatemodel import DummySurrogateModel, ProperSurrogateModel, LocalSurrogateModel, BayesClassSurrogateModel, BayesClassSurrogateModel2
 from ..surrogatemodels.costmodel import DummyCostModel, ProperCostModel
-from ..surrogatemodels.classifiers import Classifier, SupportVectorMachineClassifier, RelevanceVectorMachineClassifier, ResourceAwareClassifier
+from ..surrogatemodels.classifiers import Classifier, SupportVectorMachineClassifier, RelevanceVectorMachineClassifier, ResourceAwareClassifier, DummyClassifier
 import lhs 
 import pdb
 
@@ -663,7 +663,7 @@ class MonteCarloTrial(Trial):
     def sample_plan(self):
         design_space = self.get_design_space()
         D = len(design_space)
-        F = D * 10
+        F = D * 5
         if False: ## fancy shmancy
             self.naive_sample_plan(F/2, D, design_space)
             logging.info("Naive sampling done")

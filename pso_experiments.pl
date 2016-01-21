@@ -14,7 +14,7 @@ $fitness_file = $run_dir."fitness_script.py";
 
 $sampling = "no";
 $m = 10;
-$results_folder = "/mnt/data/cccad3/mk306/backup_pso2/extra12_pso_quad_params_${sampling}_sample_m_${m}";
+$results_folder = "/home/qri/data/extra19_pso_quad_params_${sampling}_sample_m_${m}";
 system("rm -Rf $results_folder");
 $parallelism = 1;
 system("mkdir ".$results_folder); 
@@ -33,8 +33,8 @@ if ($pid) {
 sleep($i * 5);
 $epoch = time_since_epoch();
 chomp($epoch);
-$tempfile = "/mnt/data/cccad3/mk306/backup_pso2/temp_pso_quad_${epoch}_${sampling}_${m}.txt";
-$tempfolder = '/mnt/data/cccad3/mk306/backup_pso2/pso_'.$epoch.'/';
+$tempfile = "/home/qri/data/temp_pso_quad_${epoch}_${sampling}_${m}.txt";
+$tempfolder = '/home/qri/data/pso_'.$epoch.'/';
 system('mkdir '.$tempfolder); 
 system("cp -Rf * $tempfolder");
 chdir $tempfolder;
@@ -43,6 +43,7 @@ system("echo `pwd`");
 modify('results_folder_path =', 'results_folder_path ="'.$results_folder.'"', $config_file);
 modify("trials_type =", 'trials_type =\"PSOTrial\"', $config_file);
 modify("surrogate_type =", 'surrogate_type ="proper"', $config_file);
+modify("classifier =", 'classifier = "DummyClassifier"', $config_file);
 modify("trials_count =", "trials_count = 20", $config_file);
 modify("sample_on =", 'sample_on = "no"', $config_file);
 modify("population_size =", "population_size = 30", $config_file);
@@ -51,7 +52,7 @@ modify("M =", "M = ${m}", $config_file);
 $goal_tag  = 'goal ='; 
 $ret_exec_tag  = 'return_execution_time ='; 
 #@myErrors = ('goal = "max"', "return_execution_time = True", 'goal = "min"', "return_execution_time = False"); 
-@myErrors = ('goal = "max"', "return_execution_time = True");
+@myErrors = ('goal = "min"', "return_execution_time = False");
 $j = 0;
 foreach (@tuple1 = splice(@myErrors,0,2); @tuple1; @tuple1 = splice(@myErrors,0,2)) {
     my ($goal, $ret) = @tuple1;
@@ -63,8 +64,8 @@ foreach (@tuple1 = splice(@myErrors,0,2); @tuple1; @tuple1 = splice(@myErrors,0,
     foreach (@kernel) {
         modify($kernel_tag, $_, $config_file);
         $max_error_tag  = 'maxError ='; 
-        @maxError = ('maxError = 0.01');#, 'maxError = 0.001'); 
-        #@maxError = ('maxError = 0.001'); 
+        #@maxError = ('maxError = 0.001','maxError = 0.01','maxError = 0.1');#, 'maxError = 0.001'); 
+        @maxError = ('maxError = 0.1'); 
         foreach (@maxError) {
             modify($max_error_tag, $_, $fitness_file);
             $maxErrorSet = $_;

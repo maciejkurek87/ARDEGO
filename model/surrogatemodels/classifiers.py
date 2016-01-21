@@ -88,6 +88,20 @@ class Classifier(object):
 
     def get_parameter_string(self):
         return "Not implemented"
+
+class DummyClassifier(Classifier):
+
+    def train(self, local_structure=False, bests=None):
+        return True
+        
+    def predict(self, z):
+        return array([0] * len(z))    
+        
+    def get_state_dictionary(self):
+        return {}
+        
+    def set_state_dictionary(self, dict):
+        pass
         
 class SupportVectorMachineClassifier(Classifier):
 
