@@ -168,7 +168,7 @@ def alwaysCorrect():
     else :
         return array([53.0,32.0]) 
     
-def fitnessFunc(particle, state):
+def fitnessFunc(particle, state, return_resource = False):
     allData, power_data = getAllData()
     # Dimensions dynamically rescalled
     ############Dimensions

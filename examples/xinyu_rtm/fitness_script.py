@@ -121,7 +121,7 @@ def transferValid(part):
 def meetsResources(part):
     return fitnessFunc(part,{})[0][1] == 0.0
         
-def fitnessFunc(particle, state,extraa=0):
+def fitnessFunc(particle, state, return_resource = False):
 
     # Dimensions dynamically rescalled
     ############Dimensions
@@ -229,23 +229,29 @@ def fitnessFunc(particle, state,extraa=0):
     #######################
     executionTime = array([Ct])    
 
-    ######################
-    ## mem bandwith exceeded
-    #if BWm >= (Wdp*Bw*Pdp)*Pknl*fknl :
-    #    return ((array([maxvalue]), array([4]),array([0]), cost) , state)
-    if Maia:
-        executionTime = executionTime + norm.rvs(loc=0, scale=0.0005) #add noise
-    ### accuracy error
-    error = 0.0
-    if error > maxError:
-        return ((executionTime, array([1]),array([0]), cost) , state)
-    
-    ### overmapping error
-    if overmapped:
-        return ((array([maxvalue]), array([2]),array([1]), cost) , state)
-    
-    ### ok values execution time
-    return ((executionTime, array([0]),array([0]), cost), state)
+    if (return_resource):
+        if code == 0: ## timing
+            return [array([Ds]), array([Ls]), array([Fs]), array([Bs]), [0], [0]]
+        else : ## TODO not sure what this shoulld be
+            return [[None], [None], [None], array([code == 1]), array([code == 2])]
+    else:
+        ######################
+        ## mem bandwith exceeded
+        #if BWm >= (Wdp*Bw*Pdp)*Pknl*fknl :
+        #    return ((array([maxvalue]), array([4]),array([0]), cost) , state)
+        if Maia:
+            executionTime = executionTime + norm.rvs(loc=0, scale=0.0005) #add noise
+        ### accuracy error
+        error = 0.0
+        if error > maxError:
+            return ((executionTime, array([1]),array([0]), cost) , state)
+        
+        ### overmapping error
+        if overmapped:
+            return ((array([maxvalue]), array([2]),array([1]), cost) , state)
+        
+        ### ok values execution time
+        return ((executionTime, array([0]),array([0]), cost), state)
     
 ##add state saving, we use p and thread id 
 def getCost(Bs, Ds, Ls, Fs , bit_stream_repo):
